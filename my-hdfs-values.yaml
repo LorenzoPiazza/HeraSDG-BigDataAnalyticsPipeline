@@ -1,0 +1,10 @@
+### Data node replicas
+datanode:
+ nodeCount: 2
+ affinity: {}
+
+postInstallCommands:
+ - hadoop fs -mkdir -p /accumulo
+ - hadoop fs -chown accumulo /accumulo
+ - hadoop fs -chmod 700 /accumulo
+ - hadoop fs -ls /

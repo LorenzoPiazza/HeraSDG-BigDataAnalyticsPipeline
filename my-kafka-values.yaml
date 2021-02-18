@@ -1,0 +1,320 @@
+
+## Number of Kafka brokers to deploy
+##
+replicaCount: 1
+
+## Minimal broker.id value
+## Brokers increment their ID starting at this minimal value.
+## E.g., with `minBrokerId=100` and 3 nodes, IDs will be 100, 101, 102 for brokers 0, 1, and 2, respectively.
+##
+minBrokerId: 0
+
+
+## Pod affinity preset
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard
+##
+podAffinityPreset: ""
+
+## Pod anti-affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard
+##
+podAntiAffinityPreset: soft
+
+## Node affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+## Allowed values: soft, hard
+##
+nodeAffinityPreset:
+  ## Node affinity type
+  ## Allowed values: soft, hard
+  ##
+  type: ""
+  ## Node label key to match
+  ## E.g.
+  ## key: "kubernetes.io/e2e-az-name"
+  ##
+  key: ""
+  ## Node label values to match
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []
+
+## Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+##
+affinity: {}
+
+## Node labels for pod assignment
+## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+
+## Tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+
+
+## SERVICE PARAMETERS
+##
+service:
+  ## Service type
+  ##
+  type: ClusterIP
+  ## Kafka port for client connections
+  ##
+  port: 9092
+  ## Kafka port for inter-broker connections
+  ##
+  internalPort: 9093
+  ## Kafka port for external connections
+  ##
+  externalPort: 9094
+  ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+  ##
+  nodePorts:
+    client: ""
+    external: ""
+  ## Set the LoadBalancer service type to internal only.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+  ##
+  # loadBalancerIP:
+  ## Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## Example:
+  ## loadBalancerSourceRanges:
+  ## - 10.10.10.0/24
+  ##
+
+
+## EXTERNAL ACCESS TO KAFKA BROKERS CONFIGURATION
+##
+externalAccess:
+  ## Enable Kubernetes external cluster access to Kafka brokers
+  ##
+  enabled: false
+
+
+## PERSISTENCE PARAMETERS
+##
+persistence:
+  enabled: true
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  ## The value is evaluated as a template
+  ##
+  # existingClaim:
+  ## PV Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ## set, choosing the default provisioner.
+  ##
+  # storageClass: "-"
+  ## PV Access Mode
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## PVC size
+  ##
+  size: 8Gi
+  ## PVC annotations
+  ##
+  annotations: {}
+  ## Mount point for persistence
+  ##
+  mountPath: /bitnami/kafka
+
+## Log Persistence parameters
+##
+logPersistence:
+  enabled: false
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  ## The value is evaluated as a template
+  ##
+  # existingClaim:
+  ## PV Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ## set, choosing the default provisioner.
+  # existingLogClaim:
+  ## PV Storage Class
+  ## It getted from persistence.storageClass
+  ##
+  ## PV Access Mode
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## PVC size
+  ##
+  size: 8Gi
+  ## PVC annotations
+  ##
+  annotations: {}
+  ## Mount path for persistent logs
+  ##
+  mountPath: /opt/bitnami/kafka/logs
+
+## Init Container parameters
+## Change the owner and group of the persistent volume(s) mountpoint(s) to 'runAsUser:fsGroup' on each component
+## values from the securityContext section of the component
+##
+volumePermissions:
+  enabled: false
+  ## The security context for the volumePermissions init container
+  ##
+  securityContext:
+    runAsUser: 0
+  ## Bitnami Minideb image
+  ## ref: https://hub.docker.com/r/bitnami/minideb/tags/
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/minideb
+    tag: buster
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: Always
+    ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## Init Container resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 100m
+    #   memory: 128Mi
+    requests: {}
+    #   cpu: 100m
+    #   memory: 128Mi
+
+## Kafka pods ServiceAccount
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+##
+serviceAccount:
+  ## Specifies whether a ServiceAccount should be created
+  ##
+  create: true
+  ## The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the fluentd.fullname template
+  ##
+  # name:
+
+## Role Based Access
+## ref: https://kubernetes.io/docs/admin/authorization/rbac/
+##
+rbac:
+  ## Specifies whether RBAC rules should be created
+  ## binding Kafka ServiceAccount to a role
+  ## that allows Kafka pods querying the K8s API
+  ##
+  create: false
+
+## Kafka provisioning
+##
+provisioning:
+  enabled: false
+
+  image:
+    registry: docker.io
+    repository: bitnami/kafka
+    tag: 2.7.0-debian-10-r34
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+
+    ## Set to true if you would like to see extra information on logs
+    ##
+    debug: false
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #   cpu: 250m
+    #   memory: 1Gi
+    requests: {}
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  ##TOPIC CONGIGURATIONS
+  topics:
+   - name: test-topic
+     partitions: 1
+     replicationFactor: 1
+  #   # https://kafka.apache.org/documentation/#topicconfigs
+  #   config:
+  #     max.message.bytes: 64000
+  #     flush.messages: 1
+
+
+##
+## Zookeeper chart configuration
+##
+## https://github.com/bitnami/charts/blob/master/bitnami/zookeeper/values.yaml
+##
+zookeeper:
+  enabled: true
+  auth:
+    ## Enable Zookeeper auth
+    ##
+    enabled: false
+    ## User that will use Zookeeper clients to auth
+    ##
+    # clientUser:
+    ## Password that will use Zookeeper clients to auth
+    ##
+    # clientPassword:
+    ## Comma, semicolon or whitespace separated list of user to be created. Specify them as a string, for example: "user1,user2,admin"
+    ##
+    # serverUsers:
+    ## Comma, semicolon or whitespace separated list of passwords to assign to users when created. Specify them as a string, for example: "pass4user1, pass4user2, pass4admin"
+    ##
+    # serverPasswords:
+
+## This value is only used when zookeeper.enabled is set to false
+##
+externalZookeeper:
+  ## Server or list of external zookeeper servers to use.
+  ##
+  servers: []
+
+## Extra init containers to add to the deployment
+##
+initContainers: []
+
+
+## EXTRA OBJECTS TO DEPLOY (VALUE EVALUATED AS A TEMPLATE) : KAKFA CONNECTOR
+##
+extraDeploy: []
