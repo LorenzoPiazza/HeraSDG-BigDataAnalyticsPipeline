@@ -10,6 +10,8 @@
 ### >>> pip install kafka-python
 
 from kafka import KafkaProducer
+from json import dumps
+from time import sleep
 import sys, getopt
 
 
@@ -41,8 +43,8 @@ def main(argv):
    # print ('topic name is', topic_name)
       
 if __name__ == "__main__":
-   #Check the arguments passed to the CL
-   if(len(sys.argv) != 2):
+   #Check the arguments passed to the CL (excluding the script name)
+   if(len(sys.argv) - 1 != 2): 
         print ('Error: "data_source.py" requires 2 arguments\n')
         print ('Usage: data_source.py <kafka_server> <topic_name>')
         sys.exit(1)
@@ -50,14 +52,17 @@ if __name__ == "__main__":
         kafka_server = sys.argv[1]
         topic_name = sys.argv[2]
  
+   print(kafka_server)
    #Create a producer and a connection to the Kafka Broker
-   producer = KafkaProducer(bootstrap_servers=kafka_server)
+   producer = KafkaProducer(bootstrap_servers=[kafka_server], 
+                            value_serializer=lambda x: dumps(x).encode('utf-8'))
 
    if(producer.bootstrap_connected()):
-        # while(true)
-        for _ in range(3):
-            producer.send('test-topic', 'foobar', 'some_message_bytes')
-        # ...sleep...    
+        for i in range(3):
+            data = { 'number' : i }
+            producer.send(topic_name, value=data)
+            print(data)
+            sleep(5)
    else:
         print("Something wrong in the connection to Kafka Server")
         sys.exit(2)
