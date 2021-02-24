@@ -25,6 +25,13 @@ This repositories contains my thesis project for the Master Degree in Computer E
 `helm install -f my-kafka-values.yaml my-kafka bitnami/kafka`  
 
 ### 5. Deploy Spark on cluster (using Helm):  
+`helm install -f my-spark-values.yaml my-spark bitnami/spark`
+
+1. Get the Spark master WebUI URL by running these commands:
+
+  `kubectl port-forward --namespace default svc/my-spark-master-svc 8080:80`
+  open http://localhost:8080
+
 
 
 ### Delete/Uninstall a Helm release:
