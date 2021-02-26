@@ -4,11 +4,11 @@
 ### It a Apache Beam Pipeline to read data from hdfs, process them and store again on Hdfs.
 ### The pipeline work is delegated to Apache Spark. 
 
-Start a Spark cluster which exposes the master on port 7077 by default.
-Start JobService that will connect with the Spark master:
-with Docker (preferred): docker run --net=host apache/beam_spark_job_server:latest --spark-master-url=spark://localhost:7077
-or from Beam source code: ./gradlew :runners:spark:job-server:runShadow -PsparkMasterUrl=spark://localhost:7077
-Submit the pipeline as above. Note however that environment_type=LOOPBACK is only intended for local testing. See here for details.
+# Start a Spark cluster which exposes the master on port 7077 by default.
+# Start JobService that will connect with the Spark master:
+# with Docker (preferred): docker run --net=host apache/beam_spark_job_server:latest --spark-master-url=spark://localhost:7077
+# or from Beam source code: ./gradlew :runners:spark:job-server:runShadow -PsparkMasterUrl=spark://localhost:7077
+# Submit the pipeline as above. Note however that environment_type=LOOPBACK is only intended for local testing. See here for details.
 
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
