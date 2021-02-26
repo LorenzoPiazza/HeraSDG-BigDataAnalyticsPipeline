@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preprocessor
+  labels:
+    app: preprocessor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preprocessor
+  template:
+    metadata:
+      labels:
+        app: preprocessor
+    spec:
+      containers:
+      - name: preprocessor
+        image: python:3
+        command: ["/bin/sh", "-c"]
+        args: ["pip install apache-beam && python3 /scripts/preprocessor.py; sleep 30"]
+        volumeMounts:
+        - name: preprocessor
+          mountPath: /scripts
+      volumes:
+      - name: preprocessor
+        configMap:
+          name: preprocessor-script
+          defaultMode: 0744

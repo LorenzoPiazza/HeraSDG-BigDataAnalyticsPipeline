@@ -1,3 +1,37 @@
+## Kafka Configuration
+## Specify content for server.properties
+## NOTE: This will override any KAFKA_CFG_ environment variables (including those set by the chart)
+## The server.properties is auto-generated based on other parameters when this parameter is not specified
+##
+config: |-
+  advertised.listeners=EXTERNAL://$(curl -s https://ipinfo.io/ip):30001
+
+## Example:
+## config: |-
+##   broker.id=-1
+##   listeners=PLAINTEXT://:9092
+##   advertised.listeners=PLAINTEXT://KAFKA_IP:9092
+##   num.network.threads=3
+##   num.io.threads=8
+##   socket.send.buffer.bytes=102400
+##   socket.receive.buffer.bytes=102400
+##   socket.request.max.bytes=104857600
+##   log.dirs=/bitnami/kafka/data
+##   num.partitions=1
+##   num.recovery.threads.per.data.dir=1
+##   offsets.topic.replication.factor=1
+##   transaction.state.log.replication.factor=1
+##   transaction.state.log.min.isr=1
+##   log.flush.interval.messages=10000
+##   log.flush.interval.ms=1000
+##   log.retention.hours=168
+##   log.retention.bytes=1073741824
+##   log.segment.bytes=1073741824
+##   log.retention.check.interval.ms=300000
+##   zookeeper.connect=ZOOKEEPER_SERVICE_NAME
+##   zookeeper.connection.timeout.ms=6000
+##   group.initial.rebalance.delay.ms=0
+##
 
 ## Number of Kafka brokers to deploy
 ##

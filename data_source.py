@@ -58,11 +58,12 @@ if __name__ == "__main__":
                             value_serializer=lambda x: dumps(x).encode('utf-8'))
 
    if(producer.bootstrap_connected()):
+        print("Initial connection established")
         for i in range(3):
             data = { 'number' : i }
             producer.send(topic_name, value=data)
             print(data)
-            sleep(5)
+            sleep(2)
    else:
-        print("Something wrong in the connection to Kafka Server")
+        print("Something wrong in the initial connection to Kafka Server")
         sys.exit(2)
