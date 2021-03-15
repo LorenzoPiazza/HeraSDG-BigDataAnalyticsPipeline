@@ -1,36 +1,65 @@
-## Kafka Configuration
+## Bitnami Kafka image version
+## ref: https://hub.docker.com/r/bitnami/kafka/tags/
+##
+image:
+  registry: docker.io
+  repository: bitnami/kafka
+  tag: 2.7.0-debian-10-r35
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## Example:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+
+
+  ## Kafka Configuration
 ## Specify content for server.properties
-## NOTE: This will override any KAFKA_CFG_ environment variables (including those set by the chart)
+## NOTE: This will OVERRIDE any KAFKA_CFG_ environment variables (including those set by the chart)
 ## The server.properties is auto-generated based on other parameters when this parameter is not specified
 ##
-config: |-
-  advertised.listeners=EXTERNAL://$(curl -s https://ipinfo.io/ip):30001
+# config: |-
+#   advertised.listeners=EXTERNAL://$(curl -s https://ipinfo.io/ip):30001
 
 ## Example:
-## config: |-
-##   broker.id=-1
-##   listeners=PLAINTEXT://:9092
-##   advertised.listeners=PLAINTEXT://KAFKA_IP:9092
-##   num.network.threads=3
-##   num.io.threads=8
-##   socket.send.buffer.bytes=102400
-##   socket.receive.buffer.bytes=102400
-##   socket.request.max.bytes=104857600
-##   log.dirs=/bitnami/kafka/data
-##   num.partitions=1
-##   num.recovery.threads.per.data.dir=1
-##   offsets.topic.replication.factor=1
-##   transaction.state.log.replication.factor=1
-##   transaction.state.log.min.isr=1
-##   log.flush.interval.messages=10000
-##   log.flush.interval.ms=1000
-##   log.retention.hours=168
-##   log.retention.bytes=1073741824
-##   log.segment.bytes=1073741824
-##   log.retention.check.interval.ms=300000
-##   zookeeper.connect=ZOOKEEPER_SERVICE_NAME
-##   zookeeper.connection.timeout.ms=6000
-##   group.initial.rebalance.delay.ms=0
+# config: |-
+#   broker.id=-1
+#   listeners=PLAINTEXT://:9092
+#   advertised.listeners=PLAINTEXT://KAFKA_IP:9092
+#   num.network.threads=3
+#   num.io.threads=8
+#   socket.send.buffer.bytes=102400
+#   socket.receive.buffer.bytes=102400
+#   socket.request.max.bytes=104857600
+#   log.dirs=/bitnami/kafka/data
+#   num.partitions=1
+#   num.recovery.threads.per.data.dir=1
+#   offsets.topic.replication.factor=1
+#   transaction.state.log.replication.factor=1
+#   transaction.state.log.min.isr=1
+#   log.flush.interval.messages=10000
+#   log.flush.interval.ms=1000
+#   log.retention.hours=168
+#   log.retention.bytes=1073741824
+#   log.segment.bytes=1073741824
+#   log.retention.check.interval.ms=300000
+#   zookeeper.connect=ZOOKEEPER_SERVICE_NAME
+#   zookeeper.connection.timeout.ms=6000
+#   group.initial.rebalance.delay.ms=0
+##
+
+## All the parameters from the configuration file can be overwritten by using environment variables with this format: KAFKA_CFG_{KEY}
+## ref: https://github.com/bitnami/bitnami-docker-kafka#configuration
+## Example:
+# extraEnvVars:
+#   - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+#     value: "my-kafka-zookeeper"
 ##
 
 ## Number of Kafka brokers to deploy
@@ -112,6 +141,22 @@ readinessProbe:
   # periodSeconds: 10
   # successThreshold: 1
 
+
+## Add sidecars container to the pod.
+## Example:
+## sidecars:
+##   - name: your-image-name
+##     image: your-image
+##     imagePullPolicy: Always
+##     ports:
+##       - name: portname
+##         containerPort: 1234
+##
+# sidecars:
+#   - name: kakfacat-debugger
+#     image: edenhill/kafkacat:1.6.0
+#     imagePullPolicy: IfNotPresent
+
 ## SERVICE PARAMETERS
 ##
 service:
@@ -132,7 +177,7 @@ service:
   ##
   nodePorts:
     client: ""
-    external: ""
+    external: "30001"
   ## Set the LoadBalancer service type to internal only.
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
   ##
@@ -151,6 +196,47 @@ externalAccess:
   ## Enable Kubernetes external cluster access to Kafka brokers
   ##
   enabled: true
+  ## External IPs auto-discovery configuration
+  ## An init container is used to auto-detect LB IPs or node ports by querying the K8s API
+  ## Note: RBAC might be required
+  ##
+  autoDiscovery:
+    ## Enable external IP/ports auto-discovery
+    ##
+    enabled: false
+    ## Bitnami Kubectl image
+    ## ref: https://hub.docker.com/r/bitnami/kubectl/tags/
+    ##
+    image:
+      registry: docker.io
+      repository: bitnami/kubectl
+      tag: 1.17.17-debian-10-r9
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    ## Init Container resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources:
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      limits: {}
+      #   cpu: 100m
+      #   memory: 128Mi
+      requests: {}
+      #   cpu: 100m
+      #   memory: 128Mi
 
   ## Parameters to configure K8s service(s) used to externally access Kafka brokers
   ## A new service per broker will be created
@@ -187,11 +273,22 @@ externalAccess:
     ## When service type is NodePort, you can specify the domain used for Kafka advertised listeners.
     ## If not specified, the container will try to get the kubernetes node external IP
     ##
-    # domain: mydomain.com
+    domain: 127.0.0.1
     ## Provide any additional annotations which may be required. Evaluated as a template
     ##
     annotations: {}
 
+## The address(es) the socket server listens on.
+## When it's set to an empty array, the listeners will be configured
+## based on the authentication protocols (auth.clientProtocol and auth.interBrokerProtocol parameters)
+##
+listeners: []
+
+## The address(es) (hostname:port) the brokers will advertise to producers and consumers.
+## When it's set to an empty array, the advertised listeners will be configured
+## based on the authentication protocols (auth.clientProtocol and auth.interBrokerProtocol parameters)
+##
+advertisedListeners: []
 
 ## PERSISTENCE PARAMETERS
 ##
@@ -319,12 +416,12 @@ rbac:
   ## binding Kafka ServiceAccount to a role
   ## that allows Kafka pods querying the K8s API
   ##
-  create: false
+  create: true
 
 ## Kafka provisioning
 ##
 provisioning:
-  enabled: false
+  enabled: true
 
   image:
     registry: docker.io

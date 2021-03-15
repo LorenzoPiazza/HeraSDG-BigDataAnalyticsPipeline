@@ -1,7 +1,11 @@
 ### Data node replicas
 datanode:
- nodeCount: 2
- affinity: {}
+  tag: latest 
+  nodeCount: 2
+  affinity: {}
+
+namenode:
+  tag: latest
 
 postInstallCommands:
  - hadoop fs -mkdir -p /accumulo

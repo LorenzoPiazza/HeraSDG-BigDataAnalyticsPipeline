@@ -19,21 +19,21 @@ import time
 if __name__ == "__main__":
     # result = subprocess.run(["ls", "-l"])
   
-    print("Hi Daniele!")
+    print("Hi Lorenzo!")
     # time.sleep(360)
     # Get the Spark master endpoint in the K8s cluster
     # spark_master_endpoint = "spark://my-spark-master-0.my-spark-headless.default.svc.cluster.local:7077"
-    spark_master_endpoint = "my-spark-master-svc:7077"
+    # spark_master_endpoint = "my-spark-master-svc:7077"
     
     
     # Create the PipelineOptions
     options = PipelineOptions([
-    "--runner=DirectRunner",          #Portable Runner is needed to execute a Python Apache Beam pipeline on Spark
-    # "--job_endpoint=localhost:8099",    #The job endpoint is the JobService, so the central instance where you submit your Beam pipeline. The JobService will create a Spark job for the pipeline and execute the job.
+    "--runner=PortableRunner",          #Portable Runner is needed to execute a Python Apache Beam pipeline on Spark
+    "--job_endpoint=localhost:8099",    #The job endpoint is the JobService, so the central instance where you submit your Beam pipeline. The JobService will create a Spark job for the pipeline and execute the job.
     # "--environment_type=LOOPBACK",
-    "--hdfs_host=my-hdfs-namenodes",
-    "--hdfs_port=8020",
-    "--hdfs_user=lori"
+    # "--hdfs_host=my-hdfs-namenodes",
+    # "--hdfs_port=8020",
+    # "--hdfs_user=lori"
     ])
     with beam.Pipeline(options=options) as p:
         output = (
@@ -44,5 +44,5 @@ if __name__ == "__main__":
         output | beam.FlatMap(print)
 
         # output | beam.io.hadoopfilesystem.HadoopFileSystem._list("hdfs://funziona.txt")
-    hdfs = beam.io.hadoopfilesystem.HadoopFileSystem(options)
-    hdfs.create("hdfs://funziona.txt")
+    # hdfs = beam.io.hadoopfilesystem.HadoopFileSystem(options)
+    # hdfs.create("hdfs://funziona.txt")
