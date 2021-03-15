@@ -12,7 +12,7 @@ This repository contains my thesis project for the Master Degree in Computer Eng
 `helm install -f my-kafka-values.yaml my-kafka bitnami/kafka`
 
 #### Setup the connection between the data_source (external to the cluster) and Kafka (internal to the cluster):
-- Kafka is reachable using a K8s NodePort Service that expose the port 30001 on all the node of the cluster. This port is configured to proxy the incoming connections to the my-kafka-0-external service on its 9094 port. Finally, the service will forward the connection to the my-kafka-0 pod, which is the Kafka broker.  
+- Kafka is reachable using a K8s NodePort Service that expose the port 30001 on all the node of the cluster. This port is configured to proxy the incoming connections to the *my-kafka-0-external* service on its 9094 port. Finally, the service will forward the connection to the *my-kafka-0* pod, which is the Kafka broker.  
 - However the minikube node has a internal IP which is not reachable from the laptop where the data_source.py is executed.  To resolve this issue a possible solution is:  
 1. Open a console and run the following commands:  
 `minikube service my-kafka-0-external --url`  
