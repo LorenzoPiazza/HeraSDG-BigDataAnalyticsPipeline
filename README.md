@@ -23,7 +23,7 @@ However the minikube node has a internal IP which is not reachable from the lapt
 `python data_source.py <bootstrap-server:port> <topic>`  
 where bootstrap-server is the url returned from `minikube service` command and topic the topic on which we want to publish data.  
 
-    **Keep in mind that** the first connection to the boostrap server will return to the producer some metadata with the addresses on which the broker (or the brokers) could be reached.  These metadata are called *advertisedListeners* and are configurable on the *server.properties* file on the kafka broker. The advertised listener returned to the client is then used to establish the connection on which send the data.  
+    **Keep in mind that** the first connection to the bootstrap server will return to the producer some metadata with the addresses on which the broker (or the brokers) could be reached.  These metadata are called *advertisedListeners* and are configurable on the *server.properties* file on the kafka broker. The advertised listener returned to the client is then used to establish the connection on which send the data.  
 In my configuration, the advertised listener returned is `127.0.0.1:30001`.  The host address is configurable in the values *.Values.externalAccess.service.domain* of the *my-kafka-values.yaml*. It will determine how the scripts-configmap will be templated and how the *server.properties* will be written.  
 For more details consult the scripts-configmap.yaml source file of the bitnami/kafka helm chart.
 
