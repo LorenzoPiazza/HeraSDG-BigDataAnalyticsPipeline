@@ -34,7 +34,9 @@ For more details consult the scripts-configmap.yaml source file of the bitnami/k
 For example, to inspect the metadata returned to the client:  
 `kafkacat -b <bootstrap-server:port> -t <topic> -L`
 
-### 4. Deploy HDFS on cluster (using Helm):  
+### 4. Deploy HDFS on cluster (using Helm):
+The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
+The replica factor I set is 3, and the block-size is 128Mb.
 - Firstly, add the [gaffer/hdfs chart](https://artifacthub.io/packages/helm/gaffer/hdfs) to the local Helm repository list:  
 `helm install my-hdfs gaffer/hdfs --version 0.10.0`  
 - Then, deploy the release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
