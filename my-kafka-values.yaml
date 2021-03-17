@@ -1,3 +1,6 @@
+
+## Kafka Chart Configuration
+
 ## Bitnami Kafka image version
 ## ref: https://hub.docker.com/r/bitnami/kafka/tags/
 ##
@@ -19,9 +22,8 @@ image:
   pullSecrets: []
 
 
-  ## Kafka Configuration
 ## Specify content for server.properties
-## NOTE: This will OVERRIDE any KAFKA_CFG_ environment variables (including those set by the chart)
+## NOTE: This will OVERRIDE(!!) any KAFKA_CFG_ environment variables (including those set by the chart)
 ## The server.properties is auto-generated based on other parameters when this parameter is not specified
 ##
 # config: |-
@@ -270,7 +272,8 @@ externalAccess:
     ##
     nodePorts:
          - 30001
-    ## When service type is NodePort, you can specify the domain used for Kafka advertised listeners.
+    
+    ## When service type is NodePort, you can specify THE DOMAIN USED FOR KAFKA ADVERTISED LISTENERS.
     ## If not specified, the container will try to get the kubernetes node external IP
     ##
     domain: 127.0.0.1
@@ -418,7 +421,7 @@ rbac:
   ##
   create: true
 
-## Kafka provisioning
+## Kafka provisioning - USEFUL TO CREATE TOPICS AUTOMATICALLY
 ##
 provisioning:
   enabled: true
@@ -503,6 +506,62 @@ externalZookeeper:
 initContainers: []
 
 
-## EXTRA OBJECTS TO DEPLOY (VALUE EVALUATED AS A TEMPLATE) : KAKFA CONNECTOR
+## EXTRA OBJECTS TO DEPLOY (VALUE EVALUATED AS A TEMPLATE) : KAKFA HDFS SINK CONNECTOR
 ##
-extraDeploy: []
+extraDeploy: |-
+- apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: {{ include "kafka.fullname" . }}-connect
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        app.kubernetes.io/component: connector
+    spec:
+      replicas: 1
+      selector:
+        matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
+          app.kubernetes.io/component: connector
+      template:
+        metadata:
+          labels: {{- include "common.labels.standard" . | nindent 10 }}
+            app.kubernetes.io/component: connector
+        spec:
+          containers:
+            - name: connect
+              image: KAFKA-CONNECT-IMAGE
+              imagePullPolicy: IfNotPresent
+              ports:
+                - name: connector
+                  containerPort: 8083
+              volumeMounts:
+                - name: configuration
+                  mountPath: /opt/bitnami/kafka/config
+          volumes:
+            - name: configuration
+              configMap:
+                name: {{ include "kafka.fullname" . }}-connect
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "kafka.fullname" . }}-connect
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        app.kubernetes.io/component: connector
+    data:
+      connect-standalone.properties: |-
+        bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
+        ...
+      mongodb.properties: |-
+        connection.uri=mongodb://root:password@mongodb-hostname:27017
+        ...
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: {{ include "kafka.fullname" . }}-connect
+      labels: {{- include "common.labels.standard" . | nindent 6 }}
+        app.kubernetes.io/component: connector
+    spec:
+      ports:
+        - protocol: TCP
+          port: 8083
+          targetPort: connector
+      selector: {{- include "common.labels.matchLabels" . | nindent 6 }}
+        app.kubernetes.io/component: connector

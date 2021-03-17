@@ -193,37 +193,37 @@ def on_send_error(excp):
 
 if __name__ == "__main__":
    # Check the arguments passed to the CL (excluding the script name)
-   if(len(sys.argv) - 1 != 2): 
-        print ('Error: "data_source.py" requires 2 arguments\n')
-        print ('Usage: data_source.py <kafka_server> <topic_name>')
-        sys.exit(1)
-   else:
-        kafka_server = sys.argv[1]
-        topic_name = sys.argv[2]
+#    if(len(sys.argv) - 1 != 2): 
+#         print ('Error: "data_source.py" requires 2 arguments\n')
+#         print ('Usage: data_source.py <kafka_server> <topic_name>')
+#         sys.exit(1)
+#    else:
+#         kafka_server = sys.argv[1]
+#         topic_name = sys.argv[2]
 
-   # Create a producer and a connection to the Kafka Broker
-   producer = KafkaProducer(bootstrap_servers=[kafka_server], 
-                            value_serializer=lambda x: dumps(x).encode('utf-8'))
-   print("...Connecting to broker " + kafka_server + " on topic " + topic_name)
-   print()
-   if(producer.bootstrap_connected()):
-        print("Initial connection established")
-      #   print(producer.DEFAULT_CONFIG)
-        for i in range(3):
-            user = generate_user_record(1)
-            # print(data.__sizeof__())
-            future = producer.send(topic_name, value=user.to_json())
-            try:
-                record_metadata = future.get(timeout=10)
-            except KafkaError as e:
-                # Decide what to do if produce request failed...
-                print(e)
-                pass
-            # producer.flush() 
-            # sleep(2)
-   else:
-        print("Something wrong in the initial connection to Kafka Server")
-        sys.exit(2)
-   # users = generate_user_record(1000)
-   # users.to_csv("users.csv")     
+#    # Create a producer and a connection to the Kafka Broker
+#    producer = KafkaProducer(bootstrap_servers=[kafka_server], 
+#                             value_serializer=lambda x: dumps(x).encode('utf-8'))
+#    print("...Connecting to broker " + kafka_server + " on topic " + topic_name)
+#    print()
+#    if(producer.bootstrap_connected()):
+#         print("Initial connection established")
+#       #   print(producer.DEFAULT_CONFIG)
+#         for i in range(3):
+#             user = generate_user_record(1)
+#             # print(data.__sizeof__())
+#             future = producer.send(topic_name, value=user.to_json())
+#             try:
+#                 record_metadata = future.get(timeout=10)
+#             except KafkaError as e:
+#                 # Decide what to do if produce request failed...
+#                 print(e)
+#                 pass
+#             # producer.flush() 
+#             # sleep(2)
+#    else:
+#         print("Something wrong in the initial connection to Kafka Server")
+#         sys.exit(2)
+   users = generate_user_record(10000000)
+   users.to_csv("users.csv")     
    
