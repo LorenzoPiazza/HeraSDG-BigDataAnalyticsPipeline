@@ -34,6 +34,23 @@ For more details consult the scripts-configmap.yaml source file of the bitnami/k
 For example, to inspect the metadata returned to the client:  
 `kafkacat -b <bootstrap-server:port> -t <topic> -L`
 
+#### 3.1 Kafka Connect: [Confluent HDFS3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-hdfs3)  
+*...NOTA: sembra che vi sia una licenza d'uso di 30d. HDFS2 Sink Connector invece dovrebbe essere free...*  
+
+In *my-kafka-values.yaml* file, there is an array field called *extraDeploys*. It defines some extra K8s resources that are deployed with Kafka release when you execute the command `helm install` of the previuos section.  
+In particular it deploys:  
+- The connector as a Deployment.
+- A service to expose it.
+- A config map called *my-kafka-connect-config* with the configuration file.
+- A config map called *my-kafka-connect-script* with the code to launch the worker and create the HDFS connector.
+
+The connector expose some [REST APIs](https://docs.confluent.io/home/connect/monitoring.html#using-the-rest-interface) for many purpose (debugging, create/pause/restart connectors or tasks, list the configs, etc.).
+Some example that you can execute inside the Connector container are:  
+- Get the status of *hdfs3-sink* connector and its tasks:  
+`curl localhost:8083/connectors/hdfs3-sink/status | python -m json.tool`
+- Restart the task with id 0 of the hdfs3-sink connector (there is no output if the command is successful):  
+`curl -X POST localhost:8083/connectors/hdfs3-sink/tasks/0/restart`
+
 ### 4. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
 The replica factor I set is 3, and the block-size is 128Mb.
