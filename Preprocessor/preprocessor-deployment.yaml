@@ -41,7 +41,7 @@ spec:
           - name: MY_SPARK_MASTER_SVC_SERVICE_PORT
             value: "7077"
         command: ["./spark-job-server.sh"]
-        args: ["--spark-master-url=k8s:https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT_HTTPS}"]
+        args: ["--spark-master-url=k8s:https://$(KUBERNETES_SERVICE_HOST):$(KUBERNETES_SERVICE_PORT_HTTPS)"]
         # args: ["--spark-master-url=spark://$(MY_SPARK_MASTER_SVC_SERVICE_HOST):$(MY_SPARK_MASTER_SVC_SERVICE_PORT)"]
       volumes:
       - name: preprocessor

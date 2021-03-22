@@ -1,6 +1,14 @@
 
 ## Kafka Chart Configuration
 
+##  CONFIGURE MORE BROKERS:
+  # When service type is NodePort and you want more than 1 broker you have to You will have a different node port for each Kafka broker!
+  # So, when you set replicaCount values, adjust also the externalAccess.service.nodePorts array.
+  # In this way the setup.sh script in the configMap can set up properly each Broker to configure Kafka external listener.
+  # You can get the list of configured node ports using the command below:
+          # echo "$(kubectl get svc --namespace default -l "app.kubernetes.io/name=kafka,app.kubernetes.io/instance=my-kafka,app.kubernetes.io/component=kafka,pod" -o jsonpath='{.items[*].spec.ports[0].nodePort}' | tr ' ' '\n')"
+
+
 ## Bitnami Kafka image version
 ## ref: https://hub.docker.com/r/bitnami/kafka/tags/
 ##
@@ -506,62 +514,156 @@ externalZookeeper:
 initContainers: []
 
 
+
+
 ## EXTRA OBJECTS TO DEPLOY (VALUE EVALUATED AS A TEMPLATE) : KAKFA HDFS SINK CONNECTOR
+## It is a Yaml list of multi-line string. So use the - as block sequence entry indicator for each K8s resources you want to deploy,
+## followed by | to say that the element of the list is a multi-line string.
 ##
-extraDeploy: |-
-- apiVersion: apps/v1
+
+extraDeploy:
+  - |
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: {{ include "kafka.fullname" . }}-connect
-      labels: {{- include "common.labels.standard" . | nindent 6 }}
+      labels: {{- include "common.labels.standard" . | nindent 4 }}
         app.kubernetes.io/component: connector
     spec:
       replicas: 1
       selector:
-        matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
+        matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
           app.kubernetes.io/component: connector
       template:
         metadata:
-          labels: {{- include "common.labels.standard" . | nindent 10 }}
+          labels: {{- include "common.labels.standard" . | nindent 8 }}
             app.kubernetes.io/component: connector
         spec:
           containers:
             - name: connect
-              image: KAFKA-CONNECT-IMAGE
+              image: confluentinc/cp-kafka-connect-base:6.1.0
               imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "-c"]
+              args: ["confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:1.1.1 && /opt/bitnami/kafka/scripts/launch-hdfs-sink-connector.sh; sleep infinity"]
               ports:
                 - name: connector
                   containerPort: 8083
               volumeMounts:
                 - name: configuration
                   mountPath: /opt/bitnami/kafka/config
+                - name: create-connector-script
+                  mountPath: /opt/bitnami/kafka/scripts
           volumes:
             - name: configuration
               configMap:
-                name: {{ include "kafka.fullname" . }}-connect
-  - apiVersion: v1
+                name: {{ include "kafka.fullname" . }}-connect-config
+            - name: create-connector-script
+              configMap:
+                name: {{ include "kafka.fullname" . }}-connect-scripts
+                defaultMode: 0777
+  - |
+    apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: {{ include "kafka.fullname" . }}-connect
-      labels: {{- include "common.labels.standard" . | nindent 6 }}
+      name: {{ include "kafka.fullname" . }}-connect-config
+      labels: {{- include "common.labels.standard" . | nindent 4 }}
         app.kubernetes.io/component: connector
     data:
-      connect-standalone.properties: |-
+      worker.properties: |-
+        # Bootstrap Kafka servers. If multiple servers are specified, they should be comma-separated.
         bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
-        ...
-      mongodb.properties: |-
-        connection.uri=mongodb://root:password@mongodb-hostname:27017
-        ...
-  - apiVersion: v1
+        
+        # The group ID is a unique identifier for the set of workers that form a single Kafka Connect cluster
+        group.id = connect-cluster
+
+        plugin.path = /usr/share/confluent-hub-components/confluentinc-kafka-connect-hdfs3/
+        key.converter = org.apache.kafka.connect.json.JsonConverter
+        value.converter = org.apache.kafka.connect.json.JsonConverter
+        key.converter.schemas.enable=false
+        value.converter.schemas.enable=false
+        # key.converter = org.apache.kafka.connect.storage.StringConverter
+        # value.converter = org.apache.kafka.connect.storage.StringConverter
+
+        # The topic where connector and task configuration data are stored.
+        config.storage.topic = connect-configs
+        config.storage.replication.factor = 1
+        
+        # The topic where connector and task configuration offsets are stored.
+        offset.storage.topic = connect-offsets
+        offset.storage.replication.factor = 1
+
+        # The topic where connector and task configuration status updates are stored .
+        status.storage.topic = connect-status
+        status.storage.replication.factor = 1
+        # confluent.topic.replication.factor = 1
+
+        # Confluent Control Center Integration -- uncomment these lines to enable Kafka client interceptors
+        # that will report audit data that can be displayed and analyzed in Confluent Control Center
+        # producer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+        # consumer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
+        # The config storage topic must have a single partition, and this cannot be changed via properties. 
+        # Offsets for all connectors and tasks are written quite frequently and therefore the offset topic
+        # should be highly partitioned; by default it is created with 25 partitions, but adjust accordingly
+        # with the number of connector tasks deployed to a distributed worker cluster. Kafka Connect records
+        # the status less frequently, and so by default the topic is created with 5 partitions.
+        #offset.storage.partitions=25
+        #status.storage.partitions=5
+
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "kafka.fullname" . }}-connect-scripts
+      labels: {{- include "common.labels.standard" . | nindent 4 }}
+        app.kubernetes.io/component: connector
+    data:
+      launch-hdfs-sink-connector.sh: |-
+        #!/bin/sh
+        # 1. Launch (in background) Kafka Connect Worker in distributed mode
+        echo -e "\n\n=============\nLaunching the Kafka Connect WORKER in Distributed mode...\n=============\n"
+        /bin/connect-distributed /opt/bitnami/kafka/config/worker.properties &
+        
+        # 2.Wait for Kafka connect REST listener
+        echo -e "\n\n=============\nWaiting for Kafka Connect to start listening on localhost ⏳\n=============\n"
+        while [ $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -ne 200 ] ; do
+          echo -e "\t" $(date) " Kafka Connect listener HTTP state: " $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) " (waiting for 200)"
+          sleep 5
+        done
+        echo -e $(date) "\n\n--------------\n\o/ Kafka Connect is ready! Listener HTTP state: " $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) "\n--------------\n"
+
+        # 3. Create Hdfs sink connector with a REST call using curl
+        echo -e "\n\n=============\nCreating the specific CONNECTOR with a REST call...\n=============\n"
+        curl -X PUT \
+          -H "Content-Type: application/json" \
+          --data '{
+                    "connector.class":"io.confluent.connect.hdfs3.Hdfs3SinkConnector",
+                    "tasks.max":"1",
+                    "topics":"test-topic",
+                    "hdfs.url":"hdfs://my-hdfs-namenodes:8020",
+                    "hadoop.conf.dir":"/etc/hadoop/",
+                    "partitioner.class":"io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
+                    "path.format":"'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
+                    "partition.duration.ms":"60000"
+                    "hadoop.home":"/opt/hadoop-3.1.3/share/hadoop/common",
+                    "logs.dir":"/tmp",
+                    "topics.dir":"/HeraSDG/raw_data",
+                    "format.class": "io.confluent.connect.hdfs3.json.JsonFormat",
+                    "filename.offset.zero.pad.width": 6
+                    "confluent.topic.bootstrap.servers": "{{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}"
+                }' \
+          http://localhost:8083/connectors/hdfs3-sink/config
+  - | 
+    apiVersion: v1
     kind: Service
     metadata:
       name: {{ include "kafka.fullname" . }}-connect
-      labels: {{- include "common.labels.standard" . | nindent 6 }}
+      labels: {{- include "common.labels.standard" . | nindent 4 }}
         app.kubernetes.io/component: connector
     spec:
       ports:
         - protocol: TCP
           port: 8083
           targetPort: connector
-      selector: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
         app.kubernetes.io/component: connector
