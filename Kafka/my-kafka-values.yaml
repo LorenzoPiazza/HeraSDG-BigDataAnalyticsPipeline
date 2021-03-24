@@ -467,15 +467,25 @@ provisioning:
     #   cpu: 250m
     #   memory: 256Mi
 
-  ##TOPIC CONGIGURATIONS
+  ##TOPIC CONFIGURATIONS: 
+  # https://kafka.apache.org/documentation/#topicconfigs
+  # NOTE: retention.ms=3600000 means after 1 hours the message are deleted from the topics.
   topics:
-   - name: test-topic
+   - name: utenti
      partitions: 1
      replicationFactor: 1
-  #   # https://kafka.apache.org/documentation/#topicconfigs
-  #   config:
-  #     max.message.bytes: 64000
-  #     flush.messages: 1
+     config:
+      retention.ms: "3600000"
+   - name: comportamenti
+     partitions: 1
+     replicationFactor: 1
+     config:
+      retention.ms: "3600000"
+   - name: premi
+     partitions: 1
+     replicationFactor: 1
+     config:
+      retention.ms: "3600000"
 
 
 ##
@@ -559,7 +569,7 @@ extraDeploy:
                 name: {{ include "kafka.fullname" . }}-connect-config
             - name: create-connector-script
               configMap:
-                name: {{ include "kafka.fullname" . }}-connect-scripts
+                name: {{ include "kafka.fullname" . }}-connect-script
                 defaultMode: 0777
   - |
     apiVersion: v1
@@ -614,7 +624,7 @@ extraDeploy:
     apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: {{ include "kafka.fullname" . }}-connect-scripts
+      name: {{ include "kafka.fullname" . }}-connect-script
       labels: {{- include "common.labels.standard" . | nindent 4 }}
         app.kubernetes.io/component: connector
     data:
@@ -638,18 +648,22 @@ extraDeploy:
           -H "Content-Type: application/json" \
           --data '{
                     "connector.class":"io.confluent.connect.hdfs3.Hdfs3SinkConnector",
-                    "tasks.max":"1",
-                    "topics":"test-topic",
+                    "tasks.max":"3",
+                    "topics":"utenti, comportamenti, premi",
                     "hdfs.url":"hdfs://my-hdfs-namenodes:8020",
                     "hadoop.conf.dir":"/etc/hadoop/",
                     "partitioner.class":"io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
-                    "path.format":"'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
-                    "partition.duration.ms":"60000"
+                    "path.format":"YYYY/MM/dd/HH",
+                    "partition.duration.ms":"60000",
+                    "locale":"fr-FR",
+                    "timezone":"Europe/Paris",
+                    "flush.size":"1000000",
+                    "rotate.schedule.interval.ms":"180000",
                     "hadoop.home":"/opt/hadoop-3.1.3/share/hadoop/common",
                     "logs.dir":"/tmp",
                     "topics.dir":"/HeraSDG/raw_data",
                     "format.class": "io.confluent.connect.hdfs3.json.JsonFormat",
-                    "filename.offset.zero.pad.width": 6
+                    "filename.offset.zero.pad.width": "6",
                     "confluent.topic.bootstrap.servers": "{{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}"
                 }' \
           http://localhost:8083/connectors/hdfs3-sink/config

@@ -110,8 +110,8 @@ ingress:
   # For Nginx:
   pathPrefix: "/hdfs/(.*)"
 
-postInstallCommands: |-
-  hadoop fs -mkdir -p /HeraSDG/raw_data /HeraSDG/clean_data 
-  hadoop fs -chown HeraSDG /HeraSDG
-  hadoop fs -chmod -R 777 /
-  hadoop fs -ls /
+postInstallCommands:
+  - hadoop fs -mkdir -p /HeraSDG/raw_data /HeraSDG/clean_data 
+  - hadoop fs -chown HeraSDG /HeraSDG
+  - hadoop fs -chmod -R 777 /
+  - hadoop fs -ls /
