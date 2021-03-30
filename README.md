@@ -8,9 +8,9 @@ This repository contains my thesis project for the Master Degree in Computer Eng
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
 The replica factor I set is 3, and the block-size is 128Mb.
-- Firstly, add the [gaffer/hdfs chart](https://artifacthub.io/packages/helm/gaffer/hdfs) to the local Helm repository list:  
+- Firstly, add the **gaffer/** Helm charts to the local Helm repository list:  
 `helm install my-hdfs gaffer/hdfs --version 0.10.0`  
-- Then, deploy the release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
+- Then, deploy a [gaffer/hdfs](https://artifacthub.io/packages/helm/gaffer/hdfs) release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
 `helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
 - If you want, you can create a port-forward to access the hdfs manager UI:  
  `kubectl port-forward -n default svc/my-hdfs-namenodes 9870:9870`
@@ -42,10 +42,10 @@ If so, require the namenode to recover the lease for that file:
   `hdfs debug recoverLease -path /tmp/premi/0/log`
 
 ### 4. Deploy Kafka on cluster (using Helm):  
-- Firstly, add the [bitnami/kafka chart](https://artifacthub.io/packages/helm/bitnami/kafka) to the local Helm repository list:  
+- Firstly, add the **bitnami/** Helm charts to the local Helm repository list:  
 `helm repo add bitnami https://charts.bitnami.com/bitnami`  
-- Then, deploy the release on the cluster, providing the custom values in the file my-kakfa-values.yaml:  
-`helm install -f my-kafka-values.yaml my-kafka bitnami/kafka`
+- Then, deploy a [bitnami/kafka](https://artifacthub.io/packages/helm/bitnami/kafka) release on the cluster, providing the custom values in the file /Kafka/my-kakfa-values.yaml:  
+`helm install -f /Kafka/my-kafka-values.yaml my-kafka bitnami/kafka`
 
     #### Setup the connection between the data_source (external to the cluster) and Kafka (internal to the cluster):
     Kafka is reachable using a K8s NodePort Service that expose the port 30001 on all the node of the cluster.  
@@ -97,11 +97,15 @@ Some example that you can execute inside the Connector container are:
   open http://localhost:8080
 
 
-### 6. Deploy the Preprocessor component on cluster:
-
-### 7. Deploy the ML-Frontend component on cluster (using Helm):
+### 6. Deploy the ML-Frontend component on cluster (using Helm):
+- Firstly, add the **gradiant/** Helm chart to the local Helm repository list:  
 `helm repo add gradiant https://gradiant.github.io/charts/`  
+- Then, deploy a [gradiant/jupyter](https://artifacthub.io/packages/helm/gradiant/jupyter) release on the cluster, providing the custom values in the file /ML-Frontend/my-jupyter-values.yaml:  
 `helm install my-jupyter gradiant/jupyter --version 0.1.6 -f ./ML-Frontend/my-jupyter-values.yaml`
+
+Using the *gitNotebooks* value, you can custom the release with an init Container that download the notebook from a Github repo and make the available to the release.  
+My configuration is such, at start, the Pod has my notebooks downloaded from /ML-Frontend/notebooks.
+
 
 #### Notes:
 1. Get access token from jupyter server log:
