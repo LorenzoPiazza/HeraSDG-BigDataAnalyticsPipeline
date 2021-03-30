@@ -5,7 +5,26 @@ This repository contains my thesis project for the Master Degree in Computer Eng
 
 ### 2. Install helm
 
-### 3. Deploy Kafka on cluster (using Helm):  
+### 3. Deploy HDFS on cluster (using Helm):
+The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
+The replica factor I set is 3, and the block-size is 128Mb.
+- Firstly, add the [gaffer/hdfs chart](https://artifacthub.io/packages/helm/gaffer/hdfs) to the local Helm repository list:  
+`helm install my-hdfs gaffer/hdfs --version 0.10.0`  
+- Then, deploy the release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
+`helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
+- If you want, you can create a port-forward to access the hdfs manager UI:  
+ `kubectl port-forward -n default svc/my-hdfs-namenodes 9870:9870`
+
+   Then open the ui in your browser:
+
+   open http://localhost:9870
+
+**Debugging:**
+You can use the hdfs-shell Pod to execute some useful commands on the HDFS deployed. For example:  
+- You can use fsck (Filesystem check to run a DFS filesystem checking utility) on a particular directory:  
+  `hdfs fsck /HeraSDG`
+
+### 4. Deploy Kafka on cluster (using Helm):  
 - Firstly, add the [bitnami/kafka chart](https://artifacthub.io/packages/helm/bitnami/kafka) to the local Helm repository list:  
 `helm repo add bitnami https://charts.bitnami.com/bitnami`  
 - Then, deploy the release on the cluster, providing the custom values in the file my-kakfa-values.yaml:  
@@ -34,7 +53,7 @@ For more details consult the scripts-configmap.yaml source file of the bitnami/k
 For example, to inspect the metadata returned to the client:  
 `kafkacat -b <bootstrap-server:port> -t <topic> -L`
 
-#### 3.1 Kafka Connect: [Confluent HDFS3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-hdfs3)  
+#### 4.1 Kafka Connect: [Confluent HDFS3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-hdfs3)  
 *...NOTA: sembra che vi sia una licenza d'uso di 30d. HDFS2 Sink Connector invece dovrebbe essere free...*  
 
 In *my-kafka-values.yaml* file, there is an array field called *extraDeploys*. It defines some extra K8s resources that are deployed with Kafka release when you execute the command `helm install` of the previuos section.  
@@ -50,21 +69,6 @@ Some example that you can execute inside the Connector container are:
 `curl localhost:8083/connectors/hdfs3-sink/status | python -m json.tool`
 - Restart the task with id 0 of the hdfs3-sink connector (there is no output if the command is successful):  
 `curl -X POST localhost:8083/connectors/hdfs3-sink/tasks/0/restart`
-
-### 4. Deploy HDFS on cluster (using Helm):
-The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
-The replica factor I set is 3, and the block-size is 128Mb.
-- Firstly, add the [gaffer/hdfs chart](https://artifacthub.io/packages/helm/gaffer/hdfs) to the local Helm repository list:  
-`helm install my-hdfs gaffer/hdfs --version 0.10.0`  
-- Then, deploy the release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
-`helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
-- If you want, you can create a port-forward to access the hdfs manager UI:  
- `kubectl port-forward -n default svc/my-hdfs-namenodes 9870:9870`
-
-   Then open the ui in your browser:
-
-   open http://localhost:9870
-
 
 ### 5. Deploy Spark on cluster (using Helm):  
 `helm install my-spark bitnami/spark -f my-spark-values.yaml`
