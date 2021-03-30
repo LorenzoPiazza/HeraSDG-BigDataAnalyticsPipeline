@@ -38,7 +38,7 @@ You can use fsck (Filesystem check to run a DFS filesystem checking utility) on 
   `hdfs fsck /`
   or
   `hdfs fsck / -openforwrite`    
-If so, require the namenode to recover the lease for that file:    
+If so, require the namenode to [recover the lease](https://blog.cloudera.com/understanding-hdfs-recovery-processes-part-1/) for that file:    
   `hdfs debug recoverLease -path /tmp/premi/0/log`
 
 ### 4. Deploy Kafka on cluster (using Helm):  
