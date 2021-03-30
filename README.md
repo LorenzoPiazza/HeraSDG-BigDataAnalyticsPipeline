@@ -103,8 +103,7 @@ Some example that you can execute inside the Connector container are:
 - Then, deploy a [gradiant/jupyter](https://artifacthub.io/packages/helm/gradiant/jupyter) release on the cluster, providing the custom values in the file /ML-Frontend/my-jupyter-values.yaml:  
 `helm install my-jupyter gradiant/jupyter --version 0.1.6 -f ./ML-Frontend/my-jupyter-values.yaml`
 
-Using the *gitNotebooks* value, you can custom the release with an init Container that download the notebook from a Github repo and make the available to the release.  
-My configuration is such, at start, the Pod has my notebooks downloaded from /ML-Frontend/notebooks.
+Using the *gitNotebooks* value, you can custom the release with an init Container that download an *entire* Github repo (with your custom notebooks) and make them available inside the Pod.  
 
 
 #### Notes:
@@ -126,7 +125,7 @@ You can see all the release deployed with the command:
 `helm list`  
 Then you can choose to uninstall one of them with the command:  
 `helm delete <release-name>`  
-The command removes all the Kubernetes components associated with the chart and deletes the release. Use the option --purge to delete all persistent volumes too.
+The command removes all the Kubernetes components associated with the chart and deletes the release, but don't delete the PVs and PVCs.
 
 
 
