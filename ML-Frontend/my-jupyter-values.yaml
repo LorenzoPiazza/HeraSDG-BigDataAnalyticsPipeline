@@ -15,10 +15,13 @@ persistence:
   accessMode: ReadWriteOnce
   size: 1Gi
 
-gitNotebooks:
-#  secretName: the name of the secret with ssh keys
- repos:
-   - name: HeraSDG
-     repo: https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/ML-Frontend/notebooks
+
+# To clone a repository into the Pod.
+# NOTE: It clones the entire repository. So, if needed, it is better to create a "only notebook" repo 
+# gitNotebooks:
+# #  secretName: the name of the secret with ssh keys
+#  repos:
+#    - name: HeraSDG
+#      repo: git@github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/
   #  - name: grad-git
   #    repo: git@github.com:Gradiant/notebooks.git
