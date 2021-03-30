@@ -20,9 +20,26 @@ The replica factor I set is 3, and the block-size is 128Mb.
    open http://localhost:9870
 
 **Debugging:**
-You can use the hdfs-shell Pod to execute some useful commands on the HDFS deployed. For example:  
-- You can use fsck (Filesystem check to run a DFS filesystem checking utility) on a particular directory:  
-  `hdfs fsck /HeraSDG`
+You can use the hdfs-shell Pod to execute some useful commands on the HDFS deployed.  
+
+POSSIBLE ERRORS:  
+After an unexpected stop of the HDFS connector (e.g. after a computer freeze) it can happen that the connector doesn't restart correctly and print this ERROR on the log:  
+`ERROR Recovery failed at state RECOVERY_PARTITION_PAUSED (io.confluent.connect.hdfs3.TopicPartitionWriter:273)
+org.apache.kafka.connect.errors.DataException: Error creating writer for log file hdfs://my-hdfs-namenodes:8020//tmp/utenti/0/log
+.
+.
+.
+Caused by: org.apache.hadoop.hdfs.CannotObtainBlockLengthException: Cannot obtain block length for LocatedBlock ... of <file>.`
+ 
+It happens because there is a file still in written state, not closed correctly because the previous connectors has stopped.
+ 
+You can solve as follows:  
+You can use fsck (Filesystem check to run a DFS filesystem checking utility) on a particular directory to check if there are some openwrite file:  
+  `hdfs fsck /`
+  or
+  `hdfs fsck / -openforwrite`    
+If so, require the namenode to recover the lease for that file:    
+  `hdfs debug recoverLease -path /tmp/premi/0/log`
 
 ### 4. Deploy Kafka on cluster (using Helm):  
 - Firstly, add the [bitnami/kafka chart](https://artifacthub.io/packages/helm/bitnami/kafka) to the local Helm repository list:  
