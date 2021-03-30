@@ -191,7 +191,7 @@ if __name__ == "__main__":
             else:
                 producer.send("utenti", key="", value=user)
 
-        for i in range(3*initial_size):
+        for i in range(5*initial_size):
             comportamento = generate_comportamento_record()
             producer.send("comportamenti", key="", value=comportamento)
             # future = producer.send("comportamenti", value=comportamento)

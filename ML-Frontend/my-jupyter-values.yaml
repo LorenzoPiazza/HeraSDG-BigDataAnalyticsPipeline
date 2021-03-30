@@ -15,10 +15,10 @@ persistence:
   accessMode: ReadWriteOnce
   size: 1Gi
 
-#gitNotebooks:
+gitNotebooks:
 #  secretName: the name of the secret with ssh keys
-#  repos:
-#    - name: HeraSDG
-#      repo: https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/notebook
-#    - name: grad-git
-#      repo: git@github.com:Gradiant/notebooks.git
+ repos:
+   - name: HeraSDG
+     repo: https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/ML-Frontend/notebooks
+  #  - name: grad-git
+  #    repo: git@github.com:Gradiant/notebooks.git
