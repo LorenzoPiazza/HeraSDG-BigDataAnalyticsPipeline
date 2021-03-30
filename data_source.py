@@ -43,7 +43,7 @@ def random_id_utente(newId, minBalance=0, p=None):
     """
     if not p:
         # default probabilities
-        p = (0.5, 0.30, 0.19, 0.01) 
+        p = (0.4, 0.30, 0.19, 0.11) 
     
     partner_id = ("HE", "CO", "CA", "")
     global sequenceNumber  #'global' keyword is necessary otherwise the function define another sequenceNumber variable with a scope local to the function
@@ -99,7 +99,7 @@ def random_provincia(p = None):
 def generate_user_record(): 
     user = {}
     birthdate = random_birthdate()
-    user["id_utente"] = random_id_utente(newId=True)
+    user["id_utente"]           = random_id_utente(newId=True)
     user["Sesso"]               = random_gender()
     user["Data di Nascita"]     = str(birthdate)
     user["Eta"]                 = calculateAge(birthdate)
@@ -173,7 +173,8 @@ if __name__ == "__main__":
    # Create a producer and a connection to the Kafka Broker
    producer = KafkaProducer(bootstrap_servers=[kafka_server],
                             # linger_ms = 500,
-                            # value_serializer=str.encode) 
+                            retries = 3,
+                            key_serializer=str.encode, 
                             value_serializer=lambda x: dumps(x).encode('utf-8'))
    print()
    print("...Connecting to bootstrap_server on " + kafka_server)
@@ -182,44 +183,47 @@ if __name__ == "__main__":
         print("Initial connection established")
         print("==============================")
         print()
-        print("Generate and send a first set of " +str(initial_size)+ " users and "+str(2*initial_size)+" behaviours...")
+        print("Generate and send a first set of " + str(initial_size) + " users and " + str(3*initial_size) + " behaviours...")
         for i in range(initial_size):
             user = generate_user_record()
-            producer.send("utenti", value=user)
- 
-        # for i in range(2*initial_size):
-        #     comportamento = generate_comportamento_record()
-        #     producer.send("comportamenti", value=comportamento)
-        #     # future = producer.send("comportamenti", value=comportamento)
-        #     # try:
-        #     #     record_metadata = future.get(timeout=10)
-        #     # except KafkaError as e:
-        #     #     # Decide what to do if produce request failed...
-        #     #     print(e)
-        #     #     pass
-        # print()
-        # print("Generate others data...")
-        # p = (0.60, 0.25, 0.15)
-        # options = ("comportamenti", "premi", "utenti")
-        # # while(True):
+            if(user["id_utente"] == ""):
+                producer.send("utenti", key="NULL RECORD")
+            else:
+                producer.send("utenti", key="", value=user)
+
+        for i in range(3*initial_size):
+            comportamento = generate_comportamento_record()
+            producer.send("comportamenti", key="", value=comportamento)
+            # future = producer.send("comportamenti", value=comportamento)
+            # try:
+            #     record_metadata = future.get(timeout=10)
+            # except KafkaError as e:
+            #     # Decide what to do if produce request failed...
+            #     print(e)
+            #     pass
+        print()
+        print("Generate others data...")
+        p = (0.60, 0.25, 0.15)
+        options = ("comportamenti", "premi", "utenti")
+        while(True):
         # for i in range(10):
-        #     choice = np.random.choice(options, p = p)
-        #     # Invoke the correct generator function according to the choice
-        #     data = to_generate[choice]()
-        #     producer.send(choice, value=data)
-        #     # future = producer.send(choice, value=data)
-        #     # try:
-        #     #     record_metadata = future.get(timeout=10)
-        #     # except KafkaError as e:
-        #     #     # Decide what to do if produce request failed...
-        #     #     print(e)
-        #     #     pass
-        #     print()
-        #     print("NEW RECORD for: "+choice)
-        #     print("================================================================================================================================")
-        #     print(data)
-        #     print("================================================================================================================================")
-        #     sleep(5)
+            choice = np.random.choice(options, p = p)
+            # Invoke the correct generator function according to the choice
+            data = to_generate[choice]()
+            producer.send(choice, key="", value=data)
+            # future = producer.send(choice, value=data)
+            # try:
+            #     record_metadata = future.get(timeout=10)
+            # except KafkaError as e:
+            #     # Decide what to do if produce request failed...
+            #     print(e)
+            #     pass
+            # print()
+            # print("NEW RECORD for: "+ choice)
+            # print("================================================================================================================================")
+            # print(data)
+            # print("================================================================================================================================")
+            # sleep(2)
    else:
         print("Something wrong in the initial connection to Kafka Server")
         sys.exit(2)

@@ -469,23 +469,23 @@ provisioning:
 
   ##TOPIC CONFIGURATIONS: 
   # https://kafka.apache.org/documentation/#topicconfigs
-  # NOTE: retention.ms=3600000 means after 1 hours the message are deleted from the topics.
+  # NOTE: retention.ms=172800000 means after 2d the messages are deleted from the topics.
   topics:
    - name: utenti
      partitions: 1
      replicationFactor: 1
      config:
-      retention.ms: "3600000"
+      retention.ms: "172800000"
    - name: comportamenti
      partitions: 1
      replicationFactor: 1
      config:
-      retention.ms: "3600000"
+      retention.ms: "172800000"
    - name: premi
      partitions: 1
      replicationFactor: 1
      config:
-      retention.ms: "3600000"
+      retention.ms: "172800000"
 
 
 ##
@@ -549,12 +549,31 @@ extraDeploy:
           labels: {{- include "common.labels.standard" . | nindent 8 }}
             app.kubernetes.io/component: connector
         spec:
+          # containers:
+          #   - name: install
+          #     image: python:3
+          #     command: ["/bin/sh", "-c"]
+          #     args: ["pip install -t /additionalSoftware kafka-connect-healthcheck; sleep infinity;"]
+          #     volumeMounts:
+          #     - name: extra-installation
+          #       mountPath: "/additionalSoftware"
+          # An initial container to install some useful packages:
+          initContainers:
+          - name: installer
+            image: python:3
+            command: ["/bin/sh", "-c"]
+            args: ["pip install -t /additionalSoftware kafka-connect-healthcheck"]
+            volumeMounts:
+            - name: extra-installation
+              mountPath: "/additionalSoftware"
           containers:
             - name: connect
               image: confluentinc/cp-kafka-connect-base:6.1.0
               imagePullPolicy: IfNotPresent
               command: ["/bin/sh", "-c"]
-              args: ["confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:1.1.1 && /opt/bitnami/kafka/scripts/launch-hdfs-sink-connector.sh; sleep infinity"]
+              args:
+                - confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:1.1.1 && /opt/bitnami/kafka/scripts/launch-hdfs-sink-connector.sh;
+                  export PYTHONPATH=$PYTHONPATH:/additionalSoftware/ && python /additionalSoftware/bin/kafka-connect-healthcheck;
               ports:
                 - name: connector
                   containerPort: 8083
@@ -563,6 +582,20 @@ extraDeploy:
                   mountPath: /opt/bitnami/kafka/config
                 - name: create-connector-script
                   mountPath: /opt/bitnami/kafka/scripts
+                - name: extra-installation
+                  mountPath: "/additionalSoftware"
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 18083
+                failureThreshold: 1
+                periodSeconds: 20
+              startupProbe:
+                httpGet:
+                  path: /
+                  port: 18083
+                failureThreshold: 15
+                periodSeconds: 20
           volumes:
             - name: configuration
               configMap:
@@ -571,6 +604,8 @@ extraDeploy:
               configMap:
                 name: {{ include "kafka.fullname" . }}-connect-script
                 defaultMode: 0777
+            - name: extra-installation
+              emptyDir: {}
   - |
     apiVersion: v1
     kind: ConfigMap
@@ -587,12 +622,10 @@ extraDeploy:
         group.id = connect-cluster
 
         plugin.path = /usr/share/confluent-hub-components/confluentinc-kafka-connect-hdfs3/
-        key.converter = org.apache.kafka.connect.json.JsonConverter
+        key.converter = org.apache.kafka.connect.storage.StringConverter
         value.converter = org.apache.kafka.connect.json.JsonConverter
         key.converter.schemas.enable=false
         value.converter.schemas.enable=false
-        # key.converter = org.apache.kafka.connect.storage.StringConverter
-        # value.converter = org.apache.kafka.connect.storage.StringConverter
 
         # The topic where connector and task configuration data are stored.
         config.storage.topic = connect-configs
@@ -647,26 +680,42 @@ extraDeploy:
         curl -X PUT \
           -H "Content-Type: application/json" \
           --data '{
-                    "connector.class":"io.confluent.connect.hdfs3.Hdfs3SinkConnector",
-                    "tasks.max":"3",
-                    "topics":"utenti, comportamenti, premi",
-                    "hdfs.url":"hdfs://my-hdfs-namenodes:8020",
-                    "hadoop.conf.dir":"/etc/hadoop/",
-                    "partitioner.class":"io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
-                    "path.format":"YYYY/MM/dd/HH",
-                    "partition.duration.ms":"60000",
-                    "locale":"fr-FR",
-                    "timezone":"Europe/Paris",
-                    "flush.size":"1000000",
-                    "rotate.schedule.interval.ms":"180000",
-                    "hadoop.home":"/opt/hadoop-3.1.3/share/hadoop/common",
-                    "logs.dir":"/tmp",
-                    "topics.dir":"/HeraSDG/raw_data",
-                    "format.class": "io.confluent.connect.hdfs3.json.JsonFormat",
-                    "filename.offset.zero.pad.width": "6",
-                    "confluent.topic.bootstrap.servers": "{{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}"
+                     "_comment": "--- The HDFS SINK connector class ---",
+                    "connector.class"                         : "io.confluent.connect.hdfs3.Hdfs3SinkConnector",
+                    
+                    "_comment": " --- HDFS SINK-specific configuration below here  --- ",
+                    "tasks.max"                               : "3",
+                    "topics"                                  : "utenti, comportamenti, premi",
+                    "hdfs.url"                                : "hdfs://my-hdfs-namenodes:8020",
+                    "hadoop.conf.dir"                         : "/etc/hadoop/",
+                    "hadoop.home"                             : "/opt/hadoop-3.1.3/share/hadoop/common",
+                    "logs.dir"                                : "/tmp",
+                    "confluent.topic.bootstrap.servers"       : "{{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}",
+
+                    "_comment": " --- Partition Storage Strategy  --- ",
+                    "partitioner.class"                       : "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
+                    "path.format"                             : "YYYY/MM/dd/HH",
+                    "partition.duration.ms"                   : "60000",
+                    "locale"                                  : "fr-FR",
+                    "timezone"                                : "Europe/Paris",
+                    "flush.size"                              : "1000000",
+                    "rotate.schedule.interval.ms"             : "180000",
+                    "format.class"                            : "io.confluent.connect.hdfs3.json.JsonFormat",
+                    "topics.dir"                              : "/HeraSDG/raw_data",
+                    "filename.offset.zero.pad.width"          : "6",
+                    
+                    "_comment": " --- Single Message Transformation: Filtering  --- ",                    
+                    "transforms"                              : "dropNullRecords",
+                    "transforms.dropNullRecords.type"         : "org.apache.kafka.connect.transforms.Filter",
+                    "transforms.dropNullRecords.predicate"    : "isNullRecord",
+                     
+                    "predicates"                              : "isNullRecord",
+                    "predicates.isNullRecord.type"            : "org.apache.kafka.connect.transforms.predicates.RecordIsTombstone"
                 }' \
           http://localhost:8083/connectors/hdfs3-sink/config
+
+      # 4. Monitoring the connectors
+      # while ( $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 && $(curl http://localhost:8083/connectors/hdfs3-sink/status) | python -c "import sys, json; print json.load(sys.stdin)['id']")
   - | 
     apiVersion: v1
     kind: Service

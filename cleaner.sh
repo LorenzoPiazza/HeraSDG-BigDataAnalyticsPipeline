@@ -24,8 +24,8 @@ echo "...setting the topics retention.ms time to 500ms"
 kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic utenti        --add-config retention.ms=500 
 kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic comportamenti --add-config retention.ms=500 
 kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic premi         --add-config retention.ms=500 
-sleep 1
-echo "...restoring the retention.ms time to 1 hour"
-kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic utenti        --add-config retention.ms=3600000
-kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic comportamenti --add-config retention.ms=3600000
-kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic premi         --add-config retention.ms=3600000
+sleep 5
+echo "...restoring the retention.ms time to 172800000ms (2days)"
+kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic utenti        --add-config retention.ms=172800000
+kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic comportamenti --add-config retention.ms=172800000
+kubectl exec svc/my-kafka -- kafka-configs.sh --bootstrap-server localhost:9092 --alter --topic premi         --add-config retention.ms=172800000
