@@ -549,14 +549,6 @@ extraDeploy:
           labels: {{- include "common.labels.standard" . | nindent 8 }}
             app.kubernetes.io/component: connector
         spec:
-          # containers:
-          #   - name: install
-          #     image: python:3
-          #     command: ["/bin/sh", "-c"]
-          #     args: ["pip install -t /additionalSoftware kafka-connect-healthcheck; sleep infinity;"]
-          #     volumeMounts:
-          #     - name: extra-installation
-          #       mountPath: "/additionalSoftware"
           # An initial container to install some useful packages:
           initContainers:
           - name: installer
@@ -573,7 +565,7 @@ extraDeploy:
               command: ["/bin/sh", "-c"]
               args:
                 - confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:1.1.1 && /opt/bitnami/kafka/scripts/launch-hdfs-sink-connector.sh;
-                  export PYTHONPATH=$PYTHONPATH:/additionalSoftware/ && python /additionalSoftware/bin/kafka-connect-healthcheck;
+                  export PYTHONPATH=$PYTHONPATH:/additionalSoftware/ && python /additionalSoftware/bin/kafka-connect-healthcheck --connect-worker-id $(hostname -i):8083;
               ports:
                 - name: connector
                   containerPort: 8083
@@ -618,7 +610,12 @@ extraDeploy:
         # Bootstrap Kafka servers. If multiple servers are specified, they should be comma-separated.
         bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
         
+        # rest.advertised.host.name and port is how a Connect worker communicates with other workers in the cluster
+        # rest.advertised.host.name = ${ # trovare il modo di iniettare il POD_IP }
+        # rest.advertised.port = 8083
+        
         # The group ID is a unique identifier for the set of workers that form a single Kafka Connect cluster
+        # superfluo per i sink connector: For sink connectors, the group.id is created programmatically using the prefix connect- and the connector name.
         group.id = connect-cluster
 
         plugin.path = /usr/share/confluent-hub-components/confluentinc-kafka-connect-hdfs3/
@@ -627,18 +624,24 @@ extraDeploy:
         key.converter.schemas.enable=false
         value.converter.schemas.enable=false
 
-        # The topic where connector and task configuration data are stored.
+        #### The topic where connector and task configuration data are stored.
+        #This must be the same for all Workers with the same group.id
         config.storage.topic = connect-configs
+        #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
         config.storage.replication.factor = 1
         
-        # The topic where connector and task configuration offsets are stored.
+        #### The topic where connector and task configuration offsets are stored.
+        #This must be the same for all Workers with the same group.id
         offset.storage.topic = connect-offsets
+        #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
         offset.storage.replication.factor = 1
 
-        # The topic where connector and task configuration status updates are stored .
+        #### The topic where connector and task configuration status updates are stored .
+        #This must be the same for all Workers with the same group.id
         status.storage.topic = connect-status
+        #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
         status.storage.replication.factor = 1
-        # confluent.topic.replication.factor = 1
+        # confluent.topic.replication.factor = 1  
 
         # Confluent Control Center Integration -- uncomment these lines to enable Kafka client interceptors
         # that will report audit data that can be displayed and analyzed in Confluent Control Center
@@ -704,6 +707,8 @@ extraDeploy:
                     "topics.dir"                              : "/HeraSDG/raw_data",
                     "filename.offset.zero.pad.width"          : "6",
                     
+                    "_comment": " --- Metrics: see metrics.reporters configuration values  --- ",
+                    
                     "_comment": " --- Single Message Transformation: Filtering  --- ",                    
                     "transforms"                              : "dropNullRecords",
                     "transforms.dropNullRecords.type"         : "org.apache.kafka.connect.transforms.Filter",
@@ -714,8 +719,6 @@ extraDeploy:
                 }' \
           http://localhost:8083/connectors/hdfs3-sink/config
 
-      # 4. Monitoring the connectors
-      # while ( $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 && $(curl http://localhost:8083/connectors/hdfs3-sink/status) | python -c "import sys, json; print json.load(sys.stdin)['id']")
   - | 
     apiVersion: v1
     kind: Service
