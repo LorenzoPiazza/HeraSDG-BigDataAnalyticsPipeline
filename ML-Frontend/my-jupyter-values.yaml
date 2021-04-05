@@ -2,7 +2,7 @@
 # Choose the right Docker image: you can consult alternative images on https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
 image:
   repository: "jupyter/pyspark-notebook"
-  tag: "latest"
+  tag: "4d9c9bd9ced0"
 
 # enable ingress
 ingress:

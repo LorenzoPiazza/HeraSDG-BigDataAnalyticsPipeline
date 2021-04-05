@@ -569,6 +569,11 @@ extraDeploy:
               ports:
                 - name: connector
                   containerPort: 8083
+              env:
+                - name: CONNECT_REST_ADVERTISED_HOST_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: status.podIP
               volumeMounts:
                 - name: configuration
                   mountPath: /opt/bitnami/kafka/config
@@ -610,9 +615,9 @@ extraDeploy:
         # Bootstrap Kafka servers. If multiple servers are specified, they should be comma-separated.
         bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
         
-        # rest.advertised.host.name and port is how a Connect worker communicates with other workers in the cluster
-        # rest.advertised.host.name = ${ # trovare il modo di iniettare il POD_IP }
-        # rest.advertised.port = 8083
+        # rest.advertised.host.name and port is how a Connect worker communicates with other workers in the cluster: Setted in the CONNECT_REST_ADVERTISED_HOST_NAME env
+        # rest.advertised.host.name =
+        # rest.advertised.port = 
         
         # The group ID is a unique identifier for the set of workers that form a single Kafka Connect cluster
         # superfluo per i sink connector: For sink connectors, the group.id is created programmatically using the prefix connect- and the connector name.
