@@ -17,7 +17,7 @@ The replica factor I set is 3, and the block-size is 128Mb.
 
    Then open the ui in your browser:
 
-   open http://localhost:9870
+   open `http://localhost:9870`
 
 **Debugging:**
 You can use the hdfs-shell Pod to execute some useful commands on the HDFS deployed.  
@@ -104,14 +104,14 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 `kubectl apply -f ./ML-Frontend/jupyter-headless-svc.yaml`
 
 #### How to access the frontend:
-1. Get access token from jupyter server log:
-   kubectl logs -f -n default svc/my-jupyter-jupyter
+1. Get access token from jupyter server log:  
+   `kubectl logs -f -n default svc/my-jupyter-jupyter`
 
-1. Create a port-forward to the jupyter:
-   kubectl port-forward -n default svc/my-jupyter-jupyter 8888:8888
+2. Create a port-forward to the jupyter:  
+   `kubectl port-forward -n default svc/my-jupyter-jupyter 8888:8888`
 
-Then open the ui in your browser and use the access token:
-   open http://localhost:88888
+3. Then open the ui in your browser and use the access token:
+   open `http://localhost:88888`
 
 If you set up your own password, remember to restart jupyter server to update the configuration.
   File -> Shut Down
