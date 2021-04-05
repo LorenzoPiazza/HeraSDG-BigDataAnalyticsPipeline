@@ -110,7 +110,7 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 2. Create a port-forward to the jupyter:  
    `kubectl port-forward -n default svc/my-jupyter-jupyter 8888:8888`
 
-3. Then open the ui in your browser and use the access token:
+3. Then open the ui in your browser and use the access token:  
    open `http://localhost:88888`
 
 If you set up your own password, remember to restart jupyter server to update the configuration.
