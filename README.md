@@ -87,17 +87,12 @@ Some example that you can execute inside the Connector container are:
 - Restart the task with id 0 of the hdfs3-sink connector (there is no output if the command is successful):  
 `curl -X POST localhost:8083/connectors/hdfs3-sink/tasks/0/restart`
 
-### 5. Deploy Spark on cluster (using Helm):  
-`helm install my-spark bitnami/spark -f my-spark-values.yaml`
-
-#### Notes:  
-1. Get the Spark master WebUI URL by running these commands:
-
-  `kubectl port-forward --namespace default svc/my-spark-master-svc 8080:80`
-  open http://localhost:8080
+### 5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):
+In this section we deploy a **Jupyter release that is equipped with PySpark 3.1.1**. This release uses the [*jupyter/pyspark-notebook*](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-pyspark-notebook) image and will create a Stateful Set, of one Pod, that contains the frontend notebook.  
+This notebook is configured to [run Spark on Kubernetes](https://spark.apache.org/docs/latest/running-on-kubernetes.html) in *client mode*. It means that, when the user require the Spark Context creation, the desired # of executor are created (in Pods) and the Spark Driver is launched in the same Pod of the notebook.   
+The executor use the [*lorenzopiazza/hera_sdg:spark-py_3.1.1-python3.8*](https://hub.docker.com/layers/lorenzopiazza/hera_sdg/spark-py_3.1.1-python3.8/images/sha256-8f2643f9c565a64c8ffbe38b798d5ce1b8b9be2fa414a8a0081f5d39974bb481?context=repo) image, a custom image that I create from the Pyspark 3.1.1 image and make available on my docker hub.
 
 
-### 6. Deploy the ML-Frontend component on cluster (using Helm):
 - Firstly, add the **gradiant/** Helm chart to the local Helm repository list:  
 `helm repo add gradiant https://gradiant.github.io/charts/`  
 - Then, deploy a [gradiant/jupyter](https://artifacthub.io/packages/helm/gradiant/jupyter) release on the cluster, providing the custom values in the file /ML-Frontend/my-jupyter-values.yaml:  
@@ -105,8 +100,10 @@ Some example that you can execute inside the Connector container are:
 
 Using the *gitNotebooks* value, you can custom the release with an init Container that download an *entire* Github repo (with your custom notebooks) and make them available inside the Pod.  
 
+- For driver-executor communication purpose you have also to create an *headless service* that refers the Frontend Pod where the Spark Driver execute:  
+`kubectl apply -f ./ML-Frontend/jupyter-headless-svc.yaml`
 
-#### Notes:
+#### How to access the frontend:
 1. Get access token from jupyter server log:
    kubectl logs -f -n default svc/my-jupyter-jupyter
 
@@ -125,7 +122,7 @@ You can see all the release deployed with the command:
 `helm list`  
 Then you can choose to uninstall one of them with the command:  
 `helm delete <release-name>`  
-The command removes all the Kubernetes components associated with the chart and deletes the release, but don't delete the PVs and PVCs.
+The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
 
 
 
