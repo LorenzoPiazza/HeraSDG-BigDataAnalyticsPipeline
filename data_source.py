@@ -83,16 +83,16 @@ def random_gender(p = None):
     """Generate a random gender."""
     if not p:
         # default probabilities
-        p = (0.49, 0.50, 0.01)
-    gender = ("M", "F", "")
+        p = (0.4, 0.6)
+    gender = ("M", "F")
     return np.random.choice(gender, p = p)
 
 def random_provincia(p = None):
     """Generate size-length ndarray of cities."""
     if not p:
         # default probabilities
-        p = (0.25, 0.25, 0.25, 0.24, 0.01)
-    province = ("BO", "MO", "RE", "PAR", "")
+        p = (0.5, 0.1, 0.3, 0.1)
+    province = ("BO", "MO", "RE", "PAR")
     return np.random.choice(province, p = p) 
 
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         for i in range(initial_size):
             user = generate_user_record()
             if(user["id_utente"] == ""):
-                producer.send("utenti", key="NULL RECORD")
+                producer.send("utenti", key="NULL RECORD")  # Simulate a NULL value send
             else:
                 producer.send("utenti", key="", value=user)
 
@@ -210,7 +210,10 @@ if __name__ == "__main__":
             choice = np.random.choice(options, p = p)
             # Invoke the correct generator function according to the choice
             data = to_generate[choice]()
-            producer.send(choice, key="", value=data)
+            if(data['id_utente'] == ""):
+                producer.send(choice, key="NULL RECORD")      # Simulate a NULL value send
+            else:
+                producer.send(choice, key="", value=data)
             # future = producer.send(choice, value=data)
             # try:
             #     record_metadata = future.get(timeout=10)
