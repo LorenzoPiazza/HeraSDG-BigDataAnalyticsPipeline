@@ -169,7 +169,7 @@
             --discovery-token-ca-cert-hash sha256:a9d77b26d4204155560c981dbf3d341f56e2ed25dcfa2981c772c947e5cd58f0
     ```
 
-3. **Follow the instructions on output to use the right admin.conf**
+3. **Follow the instructions on output to configure kubectl to use the right kubeconf file**
 
 4. **Deploy a Pod Network (es:Calico)**
     ```
