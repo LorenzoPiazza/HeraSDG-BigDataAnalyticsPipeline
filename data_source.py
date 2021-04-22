@@ -184,6 +184,9 @@ if __name__ == "__main__":
         print("==============================")
         print()
         print("Generate and send a first set of " + str(initial_size) + " users and " + str(3*initial_size) + " behaviours...")
+        
+        ##### WARNING!!! All the record with the same key will be sent to the same topic partition!
+        ##### So even if you have multiple partions but only a single key, all the messages will end up in the same partition and processed by the same consumer, NOT EXPLOITING PARALLELISM !!
         for i in range(initial_size):
             user = generate_user_record()
             if(user["id_utente"] == ""):
@@ -194,13 +197,7 @@ if __name__ == "__main__":
         for i in range(5*initial_size):
             comportamento = generate_comportamento_record()
             producer.send("comportamenti", key="", value=comportamento)
-            # future = producer.send("comportamenti", value=comportamento)
-            # try:
-            #     record_metadata = future.get(timeout=10)
-            # except KafkaError as e:
-            #     # Decide what to do if produce request failed...
-            #     print(e)
-            #     pass
+
         print()
         print("Generate others data...")
         p = (0.60, 0.25, 0.15)
@@ -214,13 +211,7 @@ if __name__ == "__main__":
                 producer.send(choice, key="NULL RECORD")      # Simulate a NULL value send
             else:
                 producer.send(choice, key="", value=data)
-            # future = producer.send(choice, value=data)
-            # try:
-            #     record_metadata = future.get(timeout=10)
-            # except KafkaError as e:
-            #     # Decide what to do if produce request failed...
-            #     print(e)
-            #     pass
+ 
             # print()
             # print("NEW RECORD for: "+ choice)
             # print("================================================================================================================================")

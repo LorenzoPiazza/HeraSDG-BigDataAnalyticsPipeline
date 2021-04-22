@@ -282,7 +282,7 @@ externalAccess:
          - 30001
     
     ## When service type is NodePort, you can specify THE DOMAIN USED FOR KAFKA ADVERTISED LISTENERS.
-    ## If not specified, the container will try to get the kubernetes node external IP
+    ## If not specified, the container will try to get the kubernetes node external IP!
     ##
     domain: 127.0.0.1
     ## Provide any additional annotations which may be required. Evaluated as a template
@@ -711,6 +711,11 @@ extraDeploy:
                     "format.class"                            : "io.confluent.connect.hdfs3.json.JsonFormat",
                     "topics.dir"                              : "/HeraSDG/raw_data",
                     "filename.offset.zero.pad.width"          : "6",
+                    
+                    "_comment": " --- Error Handling: dead letter queue  --- ",
+                    "errors.tolerance": "all",
+                    "errors.deadletterqueue.topic.name":"dlq_hdfs-sink",
+                    "errors.deadletterqueue.topic.replication.factor": 1,
                     
                     "_comment": " --- Metrics: see metrics.reporters configuration values  --- ",
                     
