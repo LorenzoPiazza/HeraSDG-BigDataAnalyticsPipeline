@@ -12,6 +12,10 @@
     ```
     cat /proc/meminfo | grep 'SwapTotal'
     ```
+    Disable permanently, also after reboot
+    ```
+    sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    ```
 
 2. **Letting iptables see bridged traffic**    
     ```
