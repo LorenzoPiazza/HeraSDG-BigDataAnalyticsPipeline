@@ -194,7 +194,8 @@
     ```
     kubeadm join <master-node-host>:<api-server-port> --token <token> \
         --discovery-token-ca-cert-hash sha256:<hash>
-    ```
+    ```  
+    NOTE: You can run kubeadm `token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
 
 
