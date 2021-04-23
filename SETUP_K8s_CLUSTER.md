@@ -160,8 +160,8 @@
 
     Then you can join any number of worker nodes by running the following on each as root:
 
-    kubeadm join 192.168.40.122:6443 --token lc2ryn.o676keaai1geia23 \
-            --discovery-token-ca-cert-hash sha256:a9d77b26d4204155560c981dbf3d341f56e2ed25dcfa2981c772c947e5cd58f0
+    kubeadm join 192.168.40.122:6443 --token <token> \
+            --discovery-token-ca-cert-hash sha256:<hash>
     ```
 
 2. **Follow the instructions on output to configure kubectl using the right kubeconfig file**  
