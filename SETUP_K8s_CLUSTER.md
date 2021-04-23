@@ -39,12 +39,13 @@
 	
     Open a single port  
     ```
-    sudo iptables -I INPUT -p tcp --dport 6443 --syn -j ACCEPT
+    sudo iptables -I INPUT -p tcp --dport 6443 -j ACCEPT
     ```
     Open multiple contiguos port  
     ```
     sudo iptables -A INPUT -p tcp --match multiport --dports 10250:10252 -j ACCEPT
     ```
+    Make the modifies persistent?
 
 4. **Install the Docker Engine**
     ```
@@ -133,21 +134,9 @@
 
 ### *Operations to execute only on master node*
 
-1. **Create a kubeadm-config.yaml file**
+1. **Start the Control Plane**
     ```
-    # kubeadm-config.yaml
-    kind: ClusterConfiguration
-    apiVersion: kubeadm.k8s.io/v1beta2
-    kubernetesVersion: v1.21.0
-    ---
-    kind: KubeletConfiguration
-    apiVersion: kubelet.config.k8s.io/v1beta1
-    cgroupDriver: systemd
-    ```
-
-2. **Start the Control Plane**
-    ```
-    sudo kubeadm init --config kubeadm-config.yaml --pod-network-cidr=10.244.0.0/16
+    sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-cert-extra-sans=<public_master_node_Ip>
     ```
     It should outputs something like:   
     ```
@@ -173,9 +162,10 @@
             --discovery-token-ca-cert-hash sha256:a9d77b26d4204155560c981dbf3d341f56e2ed25dcfa2981c772c947e5cd58f0
     ```
 
-3. **Follow the instructions on output to configure kubectl to use the right kubeconf file**
+2. **Follow the instructions on output to configure kubectl using the right kubeconfig file**  
+*The kubeconfig file is necessary to instruct kubectl how to connect to the API-Server.*
 
-4. **Deploy a Pod Network (es:Calico)**
+3. **Deploy a Pod Network (es:Calico)**
     ```
     sudo curl https://docs.projectcalico.org/manifests/calico.yaml -O
     ```
@@ -188,14 +178,25 @@
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
 
-
+	**(Optional): configure kubectl to access the api-server from outside the cluster.**  
+	(Prerequisite: Install kubectl on your laptop).  
+	- First copy the kubeconfig file from master node to your laptop. On your laptop run:  
+	```
+	scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
+	```  
+	- Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
+	- Verify it works. From your laptop, run   
+	```
+	kubectl --kubeconfig <kubeconfig_file> get nodes
+	```  
+	
 ### *Operations to execute only on WORKER node*
 1. **Join the cluster**
     ```
     kubeadm join <master-node-host>:<api-server-port> --token <token> \
         --discovery-token-ca-cert-hash sha256:<hash>
     ```  
-    NOTE: You can run kubeadm `token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
+    NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
 
 
