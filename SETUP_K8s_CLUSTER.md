@@ -1,5 +1,7 @@
 # HOW TO SET UP A K8S CLUSTER
 
+*The following guide is inspired by the official [Creating a cluster with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) guide*
+
 ### *Operations to execute on all nodes*
 
 #### A) INSTALL KUBEADM
