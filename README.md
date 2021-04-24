@@ -1,5 +1,6 @@
 # HeraSDG-BigDataAnalyticsPipeline
-This repository contains my thesis project for the Master Degree in Computer Engineering.
+> This repository contains my thesis project for the Master Degree in Computer Engineering.  
+> Here it is the documentation to reproduce the project. Have fun!
 
 - [HeraSDG-BigDataAnalyticsPipeline](#herasdg-bigdataanalyticspipeline)
     - [1. Setup the Kubernetes cluster](#1-setup-the-kubernetes-cluster)
@@ -12,19 +13,26 @@ This repository contains my thesis project for the Master Degree in Computer Eng
     - [Delete/Uninstall a Helm release:](#deleteuninstall-a-helm-release)
 
 ### 1. Setup the Kubernetes cluster
+Firstly you have to create a K8s cluster on which deploy the Big Data Analytics pipeline.  
 You can either choose to set up a local environment with a single virtual node cluster, or set up a real cluster.  
 - For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
->> *And then you can use the [kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/) command built-in in minikube to talk to the cluster.*  
+    > *And then [install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) to talk to the cluster.*  
 
 - Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
->> *You will end up with a K8s on premise cluster and your laptop acting as external workstation.*
+    > *You will end up with a K8s on premise cluster and your laptop acting as an external workstation.*
 
 
 ### 2. Install Helm
-You can follow [this guide](https://helm.sh/docs/intro/install/) to install Helm.  
-Then, configure kubectl to talk to the right cluster. Helm, infact, will also refer to the current kubectl context.
-If you have more than one K8s cluster, you should configure kubectl to talk to the right cluster.
-Follow step 4, 5, 6, 7 of [Configure your laptop to act as an external cluster workstation]
+Now you have to install Helm, a package manager for K8s. It helps to deploy software on K8s.  
+> You can follow this [installation guide](https://helm.sh/docs/intro/install/).  
+
+Then, you have to configure kubectl to talk to the right cluster. Helm, infact, will refer to the current kubectl context.  
+**Note:** If you installed minikube and you have only that cluster, kubectl is already configured.  
+Otherwise, if you have more than one K8s cluster, you should configure kubectl to talk to the right cluster.
+> If you haven't already, follow step 4, 5, 6, 7 of [Configure your laptop to act as an external cluster workstation](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
+
+
+The setup is end, you can **start to deploy the pipeline components!**
 
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
@@ -147,5 +155,9 @@ Then you can choose to uninstall one of them with the command:
 `helm delete <release-name>`  
 The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
 
+\
 
+***
+Author: [Lorenzo Piazza](https://github.com/LorenzoPiazza)
+***
 
