@@ -27,7 +27,6 @@ At the end of the guide, you could also find the instructions to set up your lap
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
 
 - - - -
-
 ### *Operations to execute on all nodes*
 - - - -
 
@@ -235,6 +234,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
+- - - -
 1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
 	```
@@ -269,6 +269,7 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 
 - - - -
 ### Install the Kubernetes Dashboard
+- - - -
 1. On master node, run
 	```
 	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
@@ -280,3 +281,9 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 3. Open browser at
 	`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
+
+
+
+***
+Author: [Lorenzo Piazza](https://github.com/LorenzoPiazza)
+***
