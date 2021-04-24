@@ -25,6 +25,7 @@ At the end of the guide, you could also find the instructions to set up your lap
 
 ### Before you begin
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
+<br> 
 
 - - - -
 ### *Operations to execute on all nodes*
@@ -161,6 +162,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     ```
     sudo apt-mark hold kubelet kubeadm kubectl
     ```
+<br> 
 
 - - - -
 ### *Operations to execute only on master node*
@@ -221,6 +223,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     ```
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
+<br> 
 
 - - - -
 ### *Operations to execute only on WORKER node*
@@ -231,6 +234,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
         --discovery-token-ca-cert-hash sha256:<hash>
     ```  
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
+<br> 
 
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
@@ -266,6 +270,7 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 	```
 	kubectl get nodes
 	```   
+<br> 
 
 - - - -
 ### Install the Kubernetes Dashboard
@@ -283,7 +288,7 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
 
+<br> 
 
 ***
 Author: [Lorenzo Piazza](https://github.com/LorenzoPiazza)
-***
