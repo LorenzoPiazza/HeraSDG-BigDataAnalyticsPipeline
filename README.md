@@ -3,13 +3,15 @@ This repository contains my thesis project for the Master Degree in Computer Eng
 
 ### 1. Setup the Kubernetes cluster
 You can either choose to set up a local environment with a single virtual node cluster, or set up a real cluster.  
-- For the first option you can follow this guide: [How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/) and then use the [kubectl built-in in minikube] to talk to the cluster.  
-- Otherwise look at this guide: [How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md).  
+- For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
+*Then you can use the [kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/) command built-in in minikube to talk to the cluster.*  
+- Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
+*You will end up with a K8s on premise cluster and your laptop acting as external workstation.*
 
 
 ### 2. Install Helm
-You can follow [this guide](https://helm.sh/docs/intro/install/) to install Helm.
-Regardless the previous choice I suggest to install Helm on your laptop and then configure it to talk to the correct cluster.
+You can follow [this guide](https://helm.sh/docs/intro/install/) to install Helm.  
+Regardless your previous choice I suggest to install Helm on your laptop and then configure it to talk to the correct cluster.
 
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
