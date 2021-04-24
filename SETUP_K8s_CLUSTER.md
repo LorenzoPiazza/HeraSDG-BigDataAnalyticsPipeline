@@ -36,7 +36,7 @@
     sudo sysctl --system
     ```
 
-3. **Check required ports are open** (https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports)  
+3. **Check [required ports](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports) are open**  
     If they aren't, OPEN with iptables  
 	
     Open a single port  
@@ -47,7 +47,10 @@
     ```
     sudo iptables -A INPUT -p tcp --match multiport --dports 10250:10252 -j ACCEPT
     ```
-    Make the modifies persistent?
+    Make the current iptables rule persistent, also after reboot. [Here](https://linuxconfig.org/how-to-make-iptables-rules-persistent-after-reboot-on-linux) for more details:  
+    ```
+    sudo apt-get install iptables-persistent
+    ```
 
 4. **Install the Docker Engine**
     ```
@@ -194,12 +197,14 @@
 
 5. **(Optional): configure kubectl to access the api-server from outside the cluster.**  
 	(Prerequisite: Install kubectl on your laptop).  
-	- First copy the kubeconfig file from master node to your laptop. On your laptop run:  
+	5.1 First copy the kubeconfig file from master node to your laptop. On your laptop run:  
 	```
 	scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
 	```  
-	- Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
-	- Verify it works. From your laptop, run   
+	*Note: modify the command with your ssh options.*  
+	5.2 Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.
+	When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
+	5.3 Verify it works. From your laptop, run   
 	```
 	kubectl --kubeconfig <kubeconfig_file> get nodes
 	```  
