@@ -3,10 +3,11 @@ This repository contains my thesis project for the Master Degree in Computer Eng
 
 ### 1. Setup the Kubernetes cluster
 You can either choose to set up a local environment with a single virtual node cluster, or set up a real cluster.  
-- For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
-*Then you can use the [kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/) command built-in in minikube to talk to the cluster.*  
-- Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
-*You will end up with a K8s on premise cluster and your laptop acting as external workstation.*
+> For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
+>> *And then you can use the [kubectl](https://minikube.sigs.k8s.io/docs/handbook/kubectl/) command built-in in minikube to talk to the cluster.*  
+
+> Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
+>> *You will end up with a K8s on premise cluster and your laptop acting as external workstation.*
 
 
 ### 2. Install Helm
