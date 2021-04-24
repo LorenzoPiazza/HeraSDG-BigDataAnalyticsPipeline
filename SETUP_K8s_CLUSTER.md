@@ -249,7 +249,8 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 	```
 	export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 	```
-  **Note:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
+  **Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
+  **Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
 
 5. List all the context.
 	```
