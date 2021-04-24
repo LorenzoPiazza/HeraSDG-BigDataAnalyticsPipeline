@@ -234,17 +234,17 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
 
-1. **Install *kubectl*** following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
+1. **Install kubectl** following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. **Copy the kubeconfig file** from master node to your laptop. Run this command from your laptop:
 ```
  scp -i <private_key> <user>@<master_ip>:/home/ubuntu/.kube/config .
 ```
 3. **Modify the kubeconfig file** on your laptop replacing the internal IP of the API Server with its public IP.  
 When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.  
-4. If you have more than one K8s cluster you should **tell `kubectl` which cluster you want to interact**.
+4. If you have more than one K8s cluster you should **tell kubectl which cluster you want to interact**.
 Since each cluster has its own kubeconfig file, you can create a *KUBECONFIG* environment variable where store the path to all the kubeconfig that you have.  
-*Note 1: by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.*  
-*Note 2: each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.*  
+NOTE 1: by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.   
+NOTE 2: each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
 ```
  export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 ```
