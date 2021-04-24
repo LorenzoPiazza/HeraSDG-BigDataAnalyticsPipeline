@@ -218,4 +218,15 @@
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
 
-
+## Install the Kubernetes Dashboard
+1. On master node, run
+	```
+	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
+	```
+2. Then, you can access from external cluster machine with kubectl proxy.
+	```
+	 kubectl --kubeconfig <kubeconfig_file> proxy
+	```
+3. Open browser at
+	`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
+5. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
