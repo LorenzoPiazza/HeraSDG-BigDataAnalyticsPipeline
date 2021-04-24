@@ -155,7 +155,6 @@ Then you can choose to uninstall one of them with the command:
 `helm delete <release-name>`  
 The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
 
-\
 
 ***
 Author: [Lorenzo Piazza](https://github.com/LorenzoPiazza)
