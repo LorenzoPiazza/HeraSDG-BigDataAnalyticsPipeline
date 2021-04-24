@@ -12,7 +12,7 @@ You can either choose to set up a local environment with a single virtual node c
 
 ### 2. Install Helm
 You can follow [this guide](https://helm.sh/docs/intro/install/) to install Helm.  
-Regardless your previous choice I suggest to install Helm on your laptop and then configure it to talk to the correct cluster.
+Regardless your previous choice you install Helm on your laptop and then configure it to talk to the correct cluster.
 
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
