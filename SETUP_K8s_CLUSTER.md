@@ -26,10 +26,11 @@ At the end of the guide, you could also find the instructions to set up your lap
 ### Before you begin
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
 <br> 
+<br> 
 
 - - - -
 ### *Operations to execute on all nodes*
-- - - -
+
 
 #### 1. Disable swap memory on your node.  
   Kubernetes requires that you disable swap memory on any cluster nodes to prevent the kube-scheduler from assigning a Pod to a node that has run out of CPU/memory or reached its designated CPU/memory limit.  
@@ -166,7 +167,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
 
 - - - -
 ### *Operations to execute only on master node*
-- - - -
+
 
 #### 1. Start the Control Plane
     ```
@@ -227,7 +228,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 
 - - - -
 ### *Operations to execute only on WORKER node*
-- - - -
+
 #### 1. Join the cluster
     ```
     kubeadm join <master-node-host>:<api-server-port> --token <token> \
@@ -238,7 +239,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
-- - - -
+
 1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
 	```
@@ -274,7 +275,7 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 
 - - - -
 ### Install the Kubernetes Dashboard
-- - - -
+
 1. On master node, run
 	```
 	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
