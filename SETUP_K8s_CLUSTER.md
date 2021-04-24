@@ -138,9 +138,14 @@
 
 1. **Start the Control Plane**
     ```
-    sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-cert-extra-sans=<public_master_node_Ip>
+    sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans=137.204.57.224
     ```
-    It should outputs something like:   
+    *Note*:  
+    - replace *--pod-network-cidr* with the CIDR required by the Pod Network chosen. (In this case I use Flannel).  
+    - replace *--apiserver-cert-extra-sans* with the public ip of your master node.  
+    
+    
+    If everything ok, the *kubeadm init* command should outputs something like:   
     ```
     Your Kubernetes control-plane has initialized successfully!
 
@@ -167,20 +172,27 @@
 2. **Follow the instructions on output to configure kubectl using the right kubeconfig file**  
 *The kubeconfig file is necessary to instruct kubectl how to connect to the API-Server.*
 
-3. **Deploy a Pod Network (es:Calico)**
+3. **Deploy a Pod Network (I choose Flannel)**
     ```
-    sudo curl https://docs.projectcalico.org/manifests/calico.yaml -O
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     ```
+   
+    Watch the Pod status
     ```
-    kubectl apply -f calico.yaml
+    watch kubectl get pods --all-namespaces
     ```
+    After some minutes every Pods should be in Running status. And with
+    ```
+    kubectl cluster-info
+    ```
+    you should see that both API Server and CoreDNS are running.  
 
-5. **Enable the scheduling of Pods also on Master Node**
+4. **Enable the scheduling of Pods also on Master Node**
     ```
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
 
-	**(Optional): configure kubectl to access the api-server from outside the cluster.**  
+5. **(Optional): configure kubectl to access the api-server from outside the cluster.**  
 	(Prerequisite: Install kubectl on your laptop).  
 	- First copy the kubeconfig file from master node to your laptop. On your laptop run:  
 	```
