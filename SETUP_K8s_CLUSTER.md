@@ -6,7 +6,7 @@ At the end of the guide, you could also find the instructions to set up your lap
 - [HOW TO: Set up a K8s on-premise cluster with Kubeadm](#how-to-set-up-a-k8s-on-premise-cluster-with-kubeadm)
   - [Before you begin](#before-you-begin)
   - [*Operations to execute on all nodes*](#operations-to-execute-on-all-nodes)
-    - [1. Disable swap memory on your node.](#1-disable-swap-memory-on-your-node)
+    - [1. Disable swap memory on your node](#1-disable-swap-memory-on-your-node)
     - [2. Letting iptables see bridged traffic](#2-letting-iptables-see-bridged-traffic)
     - [3. Check required ports are open](#3-check-required-ports-are-open)
     - [4. Install Docker](#4-install-docker)
@@ -25,25 +25,23 @@ At the end of the guide, you could also find the instructions to set up your lap
 - - - -
 ### Before you begin
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
-<br> 
 
 - - - -
 ### *Operations to execute on all nodes*
 
-
-#### 1. Disable swap memory on your node.  
-  Kubernetes requires that you disable swap memory on any cluster nodes to prevent the kube-scheduler from assigning a Pod to a node that has run out of CPU/memory or reached its designated CPU/memory limit.  
+#### 1. Disable swap memory on your node  
+Kubernetes requires that you disable swap memory on any cluster nodes to prevent the kube-scheduler from assigning a Pod to a node that has run out of CPU/memory or reached its designated CPU/memory limit.  
     ```
     sudo swapoff -a
-    ```
+    ```  
     Verify it has been disabled: it should return 0  
     ```
     cat /proc/meminfo | grep 'SwapTotal'
-    ```
-    Disable permanently, also after reboot
+    ```  
+    Disable permanently, also after reboot  
     ```
     sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-    ```
+    ```  
 
 #### 2. Letting iptables see bridged traffic    
     ```
