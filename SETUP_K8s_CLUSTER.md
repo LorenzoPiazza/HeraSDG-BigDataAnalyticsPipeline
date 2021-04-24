@@ -169,12 +169,12 @@ Make the current iptables rule persistent, also after reboot. [Here](https://lin
    ```
     sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans=137.204.57.224
    ```
-    *Note*:  
+   **Note**:  
     - replace *--pod-network-cidr* with the CIDR required by the Pod Network chosen. (In this case I use Flannel).  
     - replace *--apiserver-cert-extra-sans* with the public ip of your master node.  
     
     
-    If everything ok, the *kubeadm init* command should outputs something like:   
+   If everything ok, the *kubeadm init* command should outputs something like:   
    ```
     Your Kubernetes control-plane has initialized successfully!
 
@@ -206,15 +206,15 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
    ```
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
    ```
-    Watch the Pod status
+   Watch the Pod status
    ```
     watch kubectl get pods --all-namespaces
    ```
-    After some minutes every Pods should be in Running status. And with
+   After some minutes every Pods should be in Running status. And with command
    ```
     kubectl cluster-info
    ```
-    you should see that both API Server and CoreDNS are running.  
+   you should see that both API Server and CoreDNS are running.  
 
 #### 4. Enable the scheduling of Pods also on Master Node
    ```
@@ -236,20 +236,20 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 
 1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
-	```
-	 scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
-	```  
-	*Note: modify the command with your ssh private key, your username and your node IP.*  
+```
+ scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
+```  
+**Note**: modify the command with your ssh private key, your username and your node IP.  
 	
 3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
 When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
 4. If you have more than one K8s cluster you should tell `kubectl` which cluster you want to interact.
 Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG* environment variable where you store the path to all the kubeconfig that you have.  
-	```
+```
 	 export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
-	```
-  	**Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
-  	**Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
+```
+**Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
+**Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
 
 5. List all the context.
 ```
@@ -270,14 +270,14 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 ### Install the Kubernetes Dashboard
 
 1. On master node, run
-	```
+```
 	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
-	```
+```
 2. Then, you can access from external cluster machine with kubectl proxy.
-	```
+```
 	 kubectl proxy
-	```
-3. Open browser at
+```
+3. Open browser at  
 	`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
