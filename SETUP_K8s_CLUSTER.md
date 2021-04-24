@@ -240,30 +240,29 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
  scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
 ```  
 **Note**: modify the command with your ssh private key, your username and your node IP.  
-	
 3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
-When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
+When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.
 4. If you have more than one K8s cluster you should tell `kubectl` which cluster you want to interact.
 Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG* environment variable where you store the path to all the kubeconfig that you have.  
 ```
-	 export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
+ export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 ```
 **Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
 **Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
 
 5. List all the context.
 ```
-	 kubectl config get-contexts
+ kubectl config get-contexts
 ```
 
 6. Use kubectl command to switch from one context to others.
 ```
-	 kubectl config use-context <context>
+ kubectl config use-context <context>
 ```
   
 7. From now on you can use kubectl to control the specified cluster. Verify it works. From your laptop, run   
 ```
-	kubectl get nodes
+ kubectl get nodes
 ```   
 
 - - - -
@@ -271,14 +270,14 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 
 1. On master node, run
 ```
-	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
+ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
 ```
 2. Then, you can access from external cluster machine with kubectl proxy.
 ```
-	 kubectl proxy
+ kubectl proxy
 ```
 3. Open browser at  
-	`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
+`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
 
