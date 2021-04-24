@@ -1,6 +1,10 @@
-# HOW TO SET UP A K8S CLUSTER
+## HOW TO: Set up a K8s on-premise cluster with Kubeadm
 
-*The following guide is inspired by the official [Creating a cluster with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) guide*
+*Following this guide, inspired by the official [Creating a cluster with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) guide, you end up with an on premise K8s Cluster.  
+At the end of the guide, you could also find the instructions to set up your laptop as an external cluster workstation*
+
+### Before you begin:
+Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
 
 ### *Operations to execute on all nodes*
 
@@ -114,7 +118,7 @@
     ```
 
 
-6. **Install KUBEADM KUBELET E KUBECTL**
+6. **Install KUBEADM KUBELET and KUBECTL**
     ```
     sudo apt-get update
     ```
@@ -173,13 +177,12 @@
     ```
 
 2. **Follow the instructions on output to configure kubectl using the right kubeconfig file**  
-*The kubeconfig file is necessary to instruct kubectl how to connect to the API-Server.*
+The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Server.
 
 3. **Deploy a Pod Network (I choose Flannel)**
     ```
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     ```
-   
     Watch the Pod status
     ```
     watch kubectl get pods --all-namespaces
@@ -195,20 +198,6 @@
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
 
-5. **(Optional): configure kubectl to access the api-server from outside the cluster.**  
-	(Prerequisite: Install kubectl on your laptop).  
-	5.1 First copy the kubeconfig file from master node to your laptop. On your laptop run:  
-	```
-	scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
-	```  
-	*Note: modify the command with your ssh options.*  
-	5.2 Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.
-	When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
-	5.3 Verify it works. From your laptop, run   
-	```
-	kubectl --kubeconfig <kubeconfig_file> get nodes
-	```  
-	
 ### *Operations to execute only on WORKER node*
 1. **Join the cluster**
     ```
@@ -218,7 +207,20 @@
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
 
-## Install the Kubernetes Dashboard
+### (OPTIONAL) Configure your laptop to act as external cluster workstation
+1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
+2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
+	```
+	scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
+	```  
+	*Note: modify the command with your ssh private key, your username and your node IP.*  
+3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
+When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
+4. Verify it works. From your laptop, run   
+	```
+	kubectl --kubeconfig <kubeconfig_file> get nodes
+	```   
+### Install the Kubernetes Dashboard
 1. On master node, run
 	```
 	 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
