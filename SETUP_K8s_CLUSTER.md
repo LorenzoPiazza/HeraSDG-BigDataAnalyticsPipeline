@@ -234,33 +234,31 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
 
-1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
-2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
+1. **Install *kubectl*** following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
+2. **Copy the kubeconfig file** from master node to your laptop. Run this command from your laptop:
 ```
- scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
-```  
-**Note**: modify the command with your ssh private key, your username and your node IP.  
-3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
-When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.
-4. If you have more than one K8s cluster you should tell `kubectl` which cluster you want to interact.
-Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG* environment variable where you store the path to all the kubeconfig that you have.  
+ scp -i <private_key> <user>@<master_ip>:/home/ubuntu/.kube/config .
+```
+3. **Modify the kubeconfig file** on your laptop replacing the internal IP of the API Server with its public IP.  
+When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.  
+4. If you have more than one K8s cluster you should **tell `kubectl` which cluster you want to interact**.
+Since each cluster has its own kubeconfig file, you can create a *KUBECONFIG* environment variable where store the path to all the kubeconfig that you have.  
+*Note 1: by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.*  
+*Note 2: each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.*  
 ```
  export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 ```
-**Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
-**Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
-
-5. List all the context.
+5. **List all the context**.
 ```
  kubectl config get-contexts
 ```
 
-6. Use kubectl command to switch from one context to others.
+6. Use kubectl command to **switch from one context to others**.
 ```
  kubectl config use-context <context>
 ```
   
-7. From now on you can use kubectl to control the specified cluster. Verify it works. From your laptop, run   
+7. From now on you can **use kubectl to control the specified cluster**. Verify it works. From your laptop, run   
 ```
  kubectl get nodes
 ```   
@@ -276,8 +274,7 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 ```
  kubectl proxy
 ```
-3. Open browser at  
-`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
+3. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
 
