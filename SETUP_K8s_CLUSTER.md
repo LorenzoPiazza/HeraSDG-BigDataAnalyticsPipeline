@@ -22,10 +22,9 @@ At the end of the guide, you could also find the instructions to set up your lap
   - [(OPTIONAL) Configure your laptop to act as an external cluster workstation](#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
   - [Install the Kubernetes Dashboard](#install-the-kubernetes-dashboard)
   
-
+- - - -
 ### Before you begin
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
-<br> 
 <br> 
 
 - - - -
@@ -163,7 +162,6 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     ```
     sudo apt-mark hold kubelet kubeadm kubectl
     ```
-<br> 
 
 - - - -
 ### *Operations to execute only on master node*
@@ -224,7 +222,6 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     ```
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
-<br> 
 
 - - - -
 ### *Operations to execute only on WORKER node*
@@ -235,7 +232,6 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
         --discovery-token-ca-cert-hash sha256:<hash>
     ```  
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
-<br> 
 
 - - - -
 ### (OPTIONAL) Configure your laptop to act as an external cluster workstation
@@ -254,8 +250,8 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 	```
 	export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 	```
-  **Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
-  **Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
+  	**Note 1:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
+  	**Note 2:** each OS want its own specific sep between the paths. Please refer to your OS specific env semantic.  
 
 5. List all the context.
 	```
@@ -271,7 +267,6 @@ Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG*
 	```
 	kubectl get nodes
 	```   
-<br> 
 
 - - - -
 ### Install the Kubernetes Dashboard
