@@ -6,6 +6,8 @@ At the end of the guide, you could also find the instructions to set up your lap
 ### Before you begin:
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
 
+- - - -
+
 ### *Operations to execute on all nodes*
 
 #### A) INSTALL KUBEADM
@@ -141,6 +143,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     sudo apt-mark hold kubelet kubeadm kubectl
     ```
 
+- - - -
 ### *Operations to execute only on master node*
 
 1. **Start the Control Plane**
@@ -198,6 +201,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
 
+- - - -
 ### *Operations to execute only on WORKER node*
 1. **Join the cluster**
     ```
@@ -206,7 +210,7 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     ```  
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
-
+- - - -
 ### (OPTIONAL) Configure your laptop to act as external cluster workstation
 1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
@@ -220,6 +224,8 @@ When we run `kubeadmin init` we have infact add that ip to the 		certified IP li
 	```
 	kubectl --kubeconfig <kubeconfig_file> get nodes
 	```   
+
+- - - -
 ### Install the Kubernetes Dashboard
 1. On master node, run
 	```
