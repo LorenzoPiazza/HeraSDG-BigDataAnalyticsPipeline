@@ -3,15 +3,35 @@
 *Following this guide, inspired by the official [Creating a cluster with kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) guide, you end up with an on premise K8s Cluster.  
 At the end of the guide, you could also find the instructions to set up your laptop as an external cluster workstation*
 
-### Before you begin:
+- [HOW TO: Set up a K8s on-premise cluster with Kubeadm](#how-to-set-up-a-k8s-on-premise-cluster-with-kubeadm)
+  - [Before you begin](#before-you-begin)
+  - [*Operations to execute on all nodes*](#operations-to-execute-on-all-nodes)
+    - [1. Disable swap memory on your node.](#1-disable-swap-memory-on-your-node)
+    - [2. Letting iptables see bridged traffic](#2-letting-iptables-see-bridged-traffic)
+    - [3. Check required ports are open](#3-check-required-ports-are-open)
+    - [4. Install Docker](#4-install-docker)
+    - [5. Configure Docker](#5-configure-docker)
+    - [6. Install KUBEADM KUBELET and KUBECTL](#6-install-kubeadm-kubelet-and-kubectl)
+  - [*Operations to execute only on master node*](#operations-to-execute-only-on-master-node)
+    - [1. Start the Control Plane](#1-start-the-control-plane)
+    - [2. Configure kubectl to use the right kubeconfig file](#2-configure-kubectl-to-use-the-right-kubeconfig-file)
+    - [3. Deploy a Pod Network (I choose Flannel)](#3-deploy-a-pod-network-i-choose-flannel)
+    - [4. Enable the scheduling of Pods also on Master Node](#4-enable-the-scheduling-of-pods-also-on-master-node)
+  - [*Operations to execute only on WORKER node*](#operations-to-execute-only-on-worker-node)
+    - [1. Join the cluster](#1-join-the-cluster)
+  - [(OPTIONAL) Configure your laptop to act as an external cluster workstation](#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
+  - [Install the Kubernetes Dashboard](#install-the-kubernetes-dashboard)
+  
+
+### Before you begin
 Check the [node prerequisites](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#before-you-begin).
 
 - - - -
 
 ### *Operations to execute on all nodes*
+- - - -
 
-#### A) INSTALL KUBEADM
-1. **Disable swap memory on your node.**  
+#### 1. Disable swap memory on your node.  
   Kubernetes requires that you disable swap memory on any cluster nodes to prevent the kube-scheduler from assigning a Pod to a node that has run out of CPU/memory or reached its designated CPU/memory limit.  
     ```
     sudo swapoff -a
@@ -25,7 +45,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
     ```
 
-2. **Letting iptables see bridged traffic**    
+#### 2. Letting iptables see bridged traffic    
     ```
     cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
     br_netfilter  
@@ -42,7 +62,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     sudo sysctl --system
     ```
 
-3. **Check [required ports](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports) are open**  
+#### 3. Check [required ports](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports) are open  
     If they aren't, OPEN with iptables  
 	
     Open a single port  
@@ -58,7 +78,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     sudo apt-get install iptables-persistent
     ```
 
-4. **Install the Docker Engine**
+#### 4. Install Docker
     ```
     sudo apt-get remove docker docker-engine docker.io containerd runc
     ```
@@ -93,7 +113,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     sudo docker run hello-world
     ```
 
-5. **Configure Docker**
+#### 5. Configure Docker
     ```
     sudo mkdir /etc/docker
     ```
@@ -120,7 +140,7 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
     ```
 
 
-6. **Install KUBEADM KUBELET and KUBECTL**
+#### 6. Install KUBEADM KUBELET and KUBECTL
     ```
     sudo apt-get update
     ```
@@ -145,8 +165,9 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
 
 - - - -
 ### *Operations to execute only on master node*
+- - - -
 
-1. **Start the Control Plane**
+#### 1. Start the Control Plane
     ```
     sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans=137.204.57.224
     ```
@@ -179,10 +200,11 @@ Check the [node prerequisites](https://kubernetes.io/docs/setup/production-envir
             --discovery-token-ca-cert-hash sha256:<hash>
     ```
 
-2. **Follow the instructions on output to configure kubectl using the right kubeconfig file**  
+#### 2. Configure kubectl to use the right kubeconfig file  
+Follow the instructions on output to configure kubectl using the right kubeconfig file.  
 The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Server.
 
-3. **Deploy a Pod Network (I choose Flannel)**
+#### 3. Deploy a Pod Network (I choose Flannel)
     ```
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     ```
@@ -196,14 +218,15 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     ```
     you should see that both API Server and CoreDNS are running.  
 
-4. **Enable the scheduling of Pods also on Master Node**
+#### 4. Enable the scheduling of Pods also on Master Node
     ```
     kubectl taint nodes --all node-role.kubernetes.io/master-
     ```
 
 - - - -
 ### *Operations to execute only on WORKER node*
-1. **Join the cluster**
+- - - -
+#### 1. Join the cluster
     ```
     kubeadm join <master-node-host>:<api-server-port> --token <token> \
         --discovery-token-ca-cert-hash sha256:<hash>
@@ -219,21 +242,25 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
 	```  
 	*Note: modify the command with your ssh private key, your username and your node IP.*  
 	
-3. Create an environment variable called *KUBECONFIG* where you store the path to all the kubeconfig that you have.
+3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
+When we run `kubeadmin init` we have infact added that ip to the certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
+4. If you have more than one K8s cluster you should tell `kubectl` which cluster you want to interact.
+Since each cluster has a relative kubeconfig file, you can create a *KUBECONFIG* environment variable where you store the path to all the kubeconfig that you have.  
 	```
 	export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
 	```
-4. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
-When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter.  
-So, now you can use it.    
+  **Note:** by default the kubeconfig file is stored in $HOME/.kube directory and if you don't set KUBECONFIG env kubectl will read that path.  
+
 5. List all the context.
 	```
 	kubectl config get-contexts
 	```
+
 6. Use kubectl command to switch from one context to others.
 	```
 	kubectl config use-context <context>
 	```
+  
 7. From now on you can use kubectl to control the specified cluster. Verify it works. From your laptop, run   
 	```
 	kubectl get nodes

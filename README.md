@@ -1,6 +1,16 @@
 # HeraSDG-BigDataAnalyticsPipeline
 This repository contains my thesis project for the Master Degree in Computer Engineering.
 
+- [HeraSDG-BigDataAnalyticsPipeline](#herasdg-bigdataanalyticspipeline)
+    - [1. Setup the Kubernetes cluster](#1-setup-the-kubernetes-cluster)
+    - [2. Install Helm](#2-install-helm)
+    - [3. Deploy HDFS on cluster (using Helm):](#3-deploy-hdfs-on-cluster-using-helm)
+    - [4. Deploy Kafka on cluster (using Helm):](#4-deploy-kafka-on-cluster-using-helm)
+      - [4.1 Kafka Connect: Confluent HDFS3 Sink Connector](#41-kafka-connect-confluent-hdfs3-sink-connector)
+    - [5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):](#5-deploy-the-ml-frontend-equipped-with-spark-component-on-cluster-using-helm)
+      - [How to access the frontend:](#how-to-access-the-frontend)
+    - [Delete/Uninstall a Helm release:](#deleteuninstall-a-helm-release)
+
 ### 1. Setup the Kubernetes cluster
 You can either choose to set up a local environment with a single virtual node cluster, or set up a real cluster.  
 - For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
@@ -13,6 +23,8 @@ You can either choose to set up a local environment with a single virtual node c
 ### 2. Install Helm
 You can follow [this guide](https://helm.sh/docs/intro/install/) to install Helm.  
 Then, configure kubectl to talk to the right cluster. Helm, infact, will also refer to the current kubectl context.
+If you have more than one K8s cluster, you should configure kubectl to talk to the right cluster.
+Follow step 4, 5, 6, 7 of [Configure your laptop to act as an external cluster workstation]
 
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
