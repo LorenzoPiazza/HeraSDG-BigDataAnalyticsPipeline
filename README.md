@@ -21,7 +21,6 @@ You can either choose to set up a local environment with a single virtual node c
 - Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
     > *You will end up with a K8s on premise cluster and your laptop acting as an external workstation.*
 
-
 ### 2. Install Helm
 Now you have to install Helm, a package manager for K8s. It helps to deploy software on K8s.  
 > You can follow this [installation guide](https://helm.sh/docs/intro/install/).  
@@ -31,8 +30,9 @@ Then, you have to configure kubectl to talk to the right cluster. Helm, infact, 
 Otherwise, if you have more than one K8s cluster, you should configure kubectl to talk to the right cluster.
 > If you haven't already, follow step 4, 5, 6, 7 of [Configure your laptop to act as an external cluster workstation](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
 
+<br> 
 
-The setup is end, you can **start to deploy the pipeline components!**
+The initial setup ends here. You can **start to deploy the pipeline components!**    
 
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
@@ -156,7 +156,7 @@ Then you can choose to uninstall one of them with the command:
 The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
 
 
+<br> 
+
 ***
 Author: [Lorenzo Piazza](https://github.com/LorenzoPiazza)
-***
-
