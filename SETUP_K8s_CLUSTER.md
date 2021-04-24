@@ -211,18 +211,32 @@ The kubeconfig file is necessary to tell *kubectl* how to connect to the API-Ser
     NOTE: You can run `kubeadm token create --print-join-command` in Kubernetes master to get the join command that should be executed in Kubernetes nodes.
 
 - - - -
-### (OPTIONAL) Configure your laptop to act as external cluster workstation
+### (OPTIONAL) Configure your laptop to act as an external cluster workstation
 1. Install *kubectl* following this [guide](https://kubernetes.io/docs/tasks/tools/#kubectl).
 2. Copy the kubeconfig file from master node to your laptop. Run this command from your laptop:
 	```
 	scp -i ~/Downloads/piazzakey ubuntu@137.204.57.224:/home/ubuntu/.kube/config .
 	```  
 	*Note: modify the command with your ssh private key, your username and your node IP.*  
-3. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
-When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter. So, now you can use it.    
-4. Verify it works. From your laptop, run   
+	
+3. Create an environment variable called *KUBECONFIG* where you store the path to all the kubeconfig that you have.
 	```
-	kubectl --kubeconfig <kubeconfig_file> get nodes
+	export KUBECONFIG=<kubeconfig_1>;<kubeconfig_2>;<kubeconfig_n>
+	```
+4. Modify the kubeconfig file on your laptop replacing the internal IP of the API Server with its public IP.  
+When we run `kubeadmin init` we have infact add that ip to the 		certified IP list, using the *apiserver-cert-extra-sans* parameter.  
+So, now you can use it.    
+5. List all the context.
+	```
+	kubectl config get-contexts
+	```
+6. Use kubectl command to switch from one context to others.
+	```
+	kubectl config use-context <context>
+	```
+7. From now on you can use kubectl to control the specified cluster. Verify it works. From your laptop, run   
+	```
+	kubectl get nodes
 	```   
 
 - - - -
@@ -233,7 +247,7 @@ When we run `kubeadmin init` we have infact add that ip to the 		certified IP li
 	```
 2. Then, you can access from external cluster machine with kubectl proxy.
 	```
-	 kubectl --kubeconfig <kubeconfig_file> proxy
+	 kubectl proxy
 	```
 3. Open browser at
 	`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default`
