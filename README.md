@@ -37,7 +37,7 @@ The initial setup ends here. You can **start to deploy the pipeline components!*
 ### 3. Deploy HDFS on cluster (using Helm):
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
 The replica factor I set is 3, and the block-size is 128Mb.
-- Firstly, add the **gaffer/** Helm charts to the local Helm repository list:  
+- Firstly, add the **gaffer/** Helm repository to your local repository list:  
 `helm install my-hdfs gaffer/hdfs --version 0.10.0`  
 - Then, deploy a [gaffer/hdfs](https://artifacthub.io/packages/helm/gaffer/hdfs) release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
 `helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
@@ -73,7 +73,7 @@ If so, require the namenode to [recover the lease](https://blog.cloudera.com/und
   `hdfs debug recoverLease -path /tmp/premi/0/log`
 
 ### 4. Deploy Kafka on cluster (using Helm):  
-- Firstly, add the **bitnami/** Helm charts to the local Helm repository list:  
+- Firstly, add the **bitnami/** Helm repository to your local repository list:  
 `helm repo add bitnami https://charts.bitnami.com/bitnami`  
 - Then, deploy a [bitnami/kafka](https://artifacthub.io/packages/helm/bitnami/kafka) release on the cluster, providing the custom values in the file /Kafka/my-kakfa-values.yaml:  
 `helm install -f /Kafka/my-kafka-values.yaml my-kafka bitnami/kafka`
@@ -124,7 +124,7 @@ This notebook is configured to [run Spark on Kubernetes](https://spark.apache.or
 The executor use the [*lorenzopiazza/hera_sdg:spark-py_3.1.1-python3.8*](https://hub.docker.com/layers/lorenzopiazza/hera_sdg/spark-py_3.1.1-python3.8/images/sha256-8f2643f9c565a64c8ffbe38b798d5ce1b8b9be2fa414a8a0081f5d39974bb481?context=repo) image, a custom image that I create from the Pyspark 3.1.1 image and make available on my docker hub.
 
 
-- Firstly, add the **gradiant/** Helm chart to the local Helm repository list:  
+- Firstly, add the **gradiant/** Helm repository to your local repository list:  
 `helm repo add gradiant https://gradiant.github.io/charts/`  
 - Then, deploy a [gradiant/jupyter](https://artifacthub.io/packages/helm/gradiant/jupyter) release on the cluster, providing the custom values in the file /ML-Frontend/my-jupyter-values.yaml:  
 `helm install my-jupyter gradiant/jupyter --version 0.1.6 -f ./ML-Frontend/my-jupyter-values.yaml`
