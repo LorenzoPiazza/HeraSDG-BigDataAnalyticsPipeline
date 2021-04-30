@@ -38,7 +38,7 @@ The initial setup ends here. You can **start to deploy the pipeline components!*
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
 The replica factor I set is 3, and the block-size is 128Mb.
 - Firstly, add the **gaffer/** Helm repository to your local repository list:  
-`helm install my-hdfs gaffer/hdfs --version 0.10.0`  
+`helm repo add gaffer https://gchq.github.io/gaffer-docker`  
 - Then, deploy a [gaffer/hdfs](https://artifacthub.io/packages/helm/gaffer/hdfs) release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
 `helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
 - If you want, you can create a port-forward to access the hdfs manager UI:  
