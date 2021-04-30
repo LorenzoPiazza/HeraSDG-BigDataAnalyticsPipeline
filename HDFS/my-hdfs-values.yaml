@@ -19,7 +19,22 @@ namenode:
   resources: {}
   nodeSelector: {}
   tolerations: []
-  affinity: {}
+  affinity:
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        podAffininityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+              - datanode
+            - key: statefulset.kubernetes.io/pod-name
+              operator: In
+              values:
+              - my-jupyter-jupyter-0
+          topologyKey: "kubernetes.io/hostname"
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
@@ -39,10 +54,10 @@ namenode:
       - ReadWriteOnce
       resources:
         requests:
-          storage: 10Gi
+          storage: 5Gi
 
 datanode:
-  nodeCount: 3
+  nodeCount: 2
   repository: gchq/hdfs
   tag: 3.2.1
   imagePullPolicy: IfNotPresent
@@ -50,7 +65,18 @@ datanode:
   resources: {}
   nodeSelector: {}
   tolerations: []
-  affinity: {}
+  affinity: 
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        podAffininityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+              - datanode
+          topologyKey: "kubernetes.io/hostname"
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
@@ -86,7 +112,7 @@ config:
   path: /etc/hadoop/conf
   coreSite: {}
   hdfsSite:
-    dfs.replication: 3
+    dfs.replication: 2
     hadoop.security.authorization: true
     dfs.namenode.datanode.registration.ip-hostname-check: false  # TO AVOID THE "Datanode denied communication with namenode because hostname cannot be resolved" ERROR
   rackAwareness:
@@ -111,7 +137,7 @@ ingress:
   pathPrefix: "/hdfs/(.*)"
 
 postInstallCommands:
-  - hadoop fs -mkdir -p /HeraSDG/raw_data /HeraSDG/clean_data 
+  - hadoop fs -mkdir -p /HeraSDG/raw_data 
   - hadoop fs -chown HeraSDG /HeraSDG
   - hadoop fs -chmod -R 777 /
   - hadoop fs -ls /

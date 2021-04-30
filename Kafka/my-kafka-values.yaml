@@ -2,7 +2,7 @@
 ## Kafka Chart Configuration
 
 ##  CONFIGURE MORE BROKERS:
-  # When service type is NodePort and you want more than 1 broker you have to You will have a different node port for each Kafka broker!
+  # When service type is NodePort and you want more than 1 broker you have to set-up a different node port for each Kafka broker!
   # So, when you set replicaCount values, adjust also the externalAccess.service.nodePorts array.
   # In this way the setup.sh script in the configMap can set up properly each Broker to configure Kafka external listener.
   # You can get the list of configured node ports using the command below:
@@ -74,7 +74,10 @@ image:
 
 ## Number of Kafka brokers to deploy
 ##
-replicaCount: 1
+## minikube-setup
+# replicaCount: 1
+## unibo-setup
+# replicaCount: 1
 
 ## Minimal broker.id value
 ## Brokers increment their ID starting at this minimal value.
@@ -121,7 +124,22 @@ nodeAffinityPreset:
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 ## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
 ##
-affinity: {}
+## minikube-setup
+# affinity: {}
+## unibo-setup
+# ensure the scheduler does not co-locate replicas (brokers) on a single node.
+affinity: 
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 1
+      podAffininityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/component
+            operator: In
+            values:
+            - kafka
+        topologyKey: "kubernetes.io/hostname"
 
 ## Node labels for pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -549,6 +567,29 @@ extraDeploy:
           labels: {{- include "common.labels.standard" . | nindent 8 }}
             app.kubernetes.io/component: connector
         spec:
+          affinity: 
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 1
+                podAffininityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app.kubernetes.io/component
+                      operator: In
+                      values:
+                      - connector
+                  topologyKey: "kubernetes.io/hostname"
+            podAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 1
+                podAffininityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app.kubernetes.io/component
+                      operator: In
+                      values:
+                      - kafka
+                  topologyKey: "kubernetes.io/hostname"
           # An initial container to install some useful packages:
           initContainers:
           - name: installer
@@ -683,7 +724,7 @@ extraDeploy:
         done
         echo -e $(date) "\n\n--------------\n\o/ Kafka Connect is ready! Listener HTTP state: " $(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) "\n--------------\n"
 
-        # 3. Create Hdfs sink connector with a REST call using curl
+        # 3. Create HDFS sink connector with a REST call using curl
         echo -e "\n\n=============\nCreating the specific CONNECTOR with a REST call...\n=============\n"
         curl -X PUT \
           -H "Content-Type: application/json" \
