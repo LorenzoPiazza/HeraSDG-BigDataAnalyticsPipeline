@@ -21,6 +21,7 @@ At the end of the guide, you could also find the instructions to set up your lap
     - [1. Join the cluster](#1-join-the-cluster)
   - [(OPTIONAL) Configure your laptop to act as an external cluster workstation](#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
   - [Install the Kubernetes Dashboard](#install-the-kubernetes-dashboard)
+  - [Prepare the Persistent Volume](#prepare-the-persistent-volume)
   
 - - - -
 ### Before you begin
@@ -277,6 +278,31 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 3. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
 4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
+- - - -
+### Prepare the Persistent Volume
+
+1. Create the storage class. From your workstation run:
+```
+ kubectl apply -f storage-class.yaml
+```
+2. Prepare the directory on master node.
+```
+ sudo mkdir -p /data/volumes/pv1 /data/volumes/pv2 /data/volumes/pv3 /data/volumes/pv4
+```
+```
+ sudo chmod 777 /data/volumes/pv1 /data/volumes/pv2 /data/volumes/pv3 /data/volumes/pv4
+```
+3. Prepare the directory on worker node.
+```
+ sudo mkdir -p /data/volumes/pv5 /data/volumes/pv6 /data/volumes/pv7 /data/volumes/pv8
+```
+```
+ sudo chmod 777 /data/volumes/pv5 /data/volumes/pv6 /data/volumes/pv7 /data/volumes/pv8
+```
+4. Create the Persistent Volume:
+```
+ kubectl apply -f persistent-volumes.yaml
+```
 
 <br> 
 
