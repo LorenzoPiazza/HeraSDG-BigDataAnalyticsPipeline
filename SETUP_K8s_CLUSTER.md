@@ -275,8 +275,12 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 ```
  kubectl proxy
 ```
-3. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
-4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
+3. Add Metrics Server to view CPU/Memory usage stats:
+```
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+4. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
+5. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
 - - - -
 ### Prepare the Persistent Volumes
