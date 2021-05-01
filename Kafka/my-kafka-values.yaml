@@ -122,7 +122,7 @@ nodeAffinityPreset:
 
 ## Affinity for pod assignment
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+## Note: podAffinityPreset, podAntiAffinityPreset, aSnd  nodeAffinityPreset will be ignored when it's set
 ##
 ## minikube-setup
 # affinity: {}
@@ -132,7 +132,7 @@ affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
     - weight: 1
-      podAffininityTerm:
+      podAffinityTerm:
         labelSelector:
           matchExpressions:
           - key: app.kubernetes.io/component
@@ -571,7 +571,7 @@ extraDeploy:
             podAntiAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
               - weight: 1
-                podAffininityTerm:
+                podAffinityTerm:
                   labelSelector:
                     matchExpressions:
                     - key: app.kubernetes.io/component
@@ -582,7 +582,7 @@ extraDeploy:
             podAffinity:
               preferredDuringSchedulingIgnoredDuringExecution:
               - weight: 1
-                podAffininityTerm:
+                podAffinityTerm:
                   labelSelector:
                     matchExpressions:
                     - key: app.kubernetes.io/component

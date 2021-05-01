@@ -23,7 +23,7 @@ namenode:
     podAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 1
-        podAffininityTerm:
+        podAffinityTerm:
           labelSelector:
             matchExpressions:
             - key: app.kubernetes.io/component
@@ -49,7 +49,7 @@ namenode:
   dataVolumes:
     count: 1
     pvcTemplateSpec:
-      storageClassName: null
+      storageClassName: my-local-storage
       accessModes:
       - ReadWriteOnce
       resources:
@@ -69,7 +69,7 @@ datanode:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 1
-        podAffininityTerm:
+        podAffinityTerm:
           labelSelector:
             matchExpressions:
             - key: app.kubernetes.io/component
@@ -90,7 +90,7 @@ datanode:
   dataVolumes:
     count: 1
     pvcTemplateSpec:
-      storageClassName: null
+      storageClassName: my-local-storage
       accessModes:
       - ReadWriteOnce
       resources:
