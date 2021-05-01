@@ -280,7 +280,7 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 
 - - - -
 ### Prepare the Persistent Volumes
-*This particular setup is specifically to my 2-node cluster where I create 4 PV on worker node and 4 PV on master node. Feel free to adapt to your needs.  *
+*This particular setup is specifically to my 2-node cluster where I create 4 PV on worker node and 4 PV on master node. Feel free to adapt to your needs.*  
 
 1. Create the storage class. From your workstation run:
 ```
