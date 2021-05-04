@@ -77,7 +77,7 @@ image:
 ## minikube-setup
 # replicaCount: 1
 ## unibo-setup
-# replicaCount: 1
+replicaCount: 2
 
 ## Minimal broker.id value
 ## Brokers increment their ID starting at this minimal value.
@@ -298,6 +298,7 @@ externalAccess:
     ##
     nodePorts:
          - 30001
+         - 30002
     
     ## When service type is NodePort, you can specify THE DOMAIN USED FOR KAFKA ADVERTISED LISTENERS.
     ## If not specified, the container will try to get the kubernetes node external IP!
@@ -328,20 +329,21 @@ persistence:
   ## The value is evaluated as a template
   ##
   # existingClaim:
+
   ## PV Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
   ## If undefined (the default) or set to null, no storageClassName spec is
   ## set, choosing the default provisioner.
   ##
-  # storageClass: "-"
+  storageClass: "my-local-storage"
   ## PV Access Mode
   ##
   accessModes:
     - ReadWriteOnce
   ## PVC size
   ##
-  size: 8Gi
+  size: 10Gi
   ## PVC annotations
   ##
   annotations: {}
@@ -490,18 +492,18 @@ provisioning:
   # NOTE: retention.ms=172800000 means after 2d the messages are deleted from the topics.
   topics:
    - name: utenti
-     partitions: 1
-     replicationFactor: 1
+     partitions: 2
+     replicationFactor: 2
      config:
       retention.ms: "172800000"
    - name: comportamenti
-     partitions: 1
-     replicationFactor: 1
+     partitions: 2
+     replicationFactor: 2
      config:
       retention.ms: "172800000"
    - name: premi
-     partitions: 1
-     replicationFactor: 1
+     partitions: 2
+     replicationFactor: 2
      config:
       retention.ms: "172800000"
 
@@ -548,7 +550,6 @@ initContainers: []
 ## It is a Yaml list of multi-line string. So use the - as block sequence entry indicator for each K8s resources you want to deploy,
 ## followed by | to say that the element of the list is a multi-line string.
 ##
-
 extraDeploy:
   - |
     apiVersion: apps/v1
@@ -654,7 +655,7 @@ extraDeploy:
     data:
       worker.properties: |-
         # Bootstrap Kafka servers. If multiple servers are specified, they should be comma-separated.
-        bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
+        bootstrap.servers = {{ include "kafka.fullname" . }}-0.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}, {{ include "kafka.fullname" . }}-1.{{ include "kafka.fullname" . }}-headless.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.service.port }}
         
         # rest.advertised.host.name and port is how a Connect worker communicates with other workers in the cluster: Setted in the CONNECT_REST_ADVERTISED_HOST_NAME env
         # rest.advertised.host.name =
@@ -674,19 +675,19 @@ extraDeploy:
         #This must be the same for all Workers with the same group.id
         config.storage.topic = connect-configs
         #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
-        config.storage.replication.factor = 1
+        config.storage.replication.factor = 2
         
         #### The topic where connector and task configuration offsets are stored.
         #This must be the same for all Workers with the same group.id
         offset.storage.topic = connect-offsets
         #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
-        offset.storage.replication.factor = 1
+        offset.storage.replication.factor = 2
 
         #### The topic where connector and task configuration status updates are stored .
         #This must be the same for all Workers with the same group.id
         status.storage.topic = connect-status
         #This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster
-        status.storage.replication.factor = 1
+        status.storage.replication.factor = 2
         # confluent.topic.replication.factor = 1  
 
         # Confluent Control Center Integration -- uncomment these lines to enable Kafka client interceptors
@@ -733,7 +734,7 @@ extraDeploy:
                     "connector.class"                         : "io.confluent.connect.hdfs3.Hdfs3SinkConnector",
                     
                     "_comment": " --- HDFS SINK-specific configuration below here  --- ",
-                    "tasks.max"                               : "3",
+                    "tasks.max"                               : "6",
                     "topics"                                  : "utenti, comportamenti, premi",
                     "hdfs.url"                                : "hdfs://my-hdfs-namenodes:8020",
                     "hadoop.conf.dir"                         : "/etc/hadoop/",
@@ -744,11 +745,11 @@ extraDeploy:
                     "_comment": " --- Partition Storage Strategy  --- ",
                     "partitioner.class"                       : "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
                     "path.format"                             : "YYYY/MM/dd/HH",
-                    "partition.duration.ms"                   : "60000",
+                    "partition.duration.ms"                   : "600000",
                     "locale"                                  : "fr-FR",
                     "timezone"                                : "Europe/Paris",
-                    "flush.size"                              : "1000000",
-                    "rotate.schedule.interval.ms"             : "180000",
+                    "flush.size"                              : "2000000",
+                    "rotate.schedule.interval.ms"             : "600000",
                     "format.class"                            : "io.confluent.connect.hdfs3.json.JsonFormat",
                     "topics.dir"                              : "/HeraSDG/raw_data",
                     "filename.offset.zero.pad.width"          : "6",
