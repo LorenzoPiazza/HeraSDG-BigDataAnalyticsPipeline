@@ -22,6 +22,7 @@ At the end of the guide, you could also find the instructions to set up your lap
   - [(OPTIONAL) Configure your laptop to act as an external cluster workstation](#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
   - [Install the Kubernetes Dashboard](#install-the-kubernetes-dashboard)
   - [Prepare the Persistent Volumes](#prepare-the-persistent-volumes)
+  - [Enable the Metrics server api](#Enable-the-metrics-server-api)
   
 - - - -
 ### Before you begin
@@ -266,6 +267,7 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 
 - - - -
 ### Install the Kubernetes Dashboard
+(NOT RECCOMENDED. It seems to cause some bug)
 
 1. On master node, run
 ```
@@ -275,12 +277,8 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 ```
  kubectl proxy
 ```
-3. Add Metrics Server to view CPU/Memory usage stats:
-```
-  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
-4. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
-5. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
+3. Open browser at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/pod?namespace=default
+4. Configure authorization and authentication following this [guide](https://www.replex.io/blog/how-to-install-access-and-add-heapster-metrics-to-the-kubernetes-dashboard)
 
 - - - -
 ### Prepare the Persistent Volumes
@@ -310,7 +308,7 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
 ```
 
 - - - -
-### Enable Metrics-server-api
+### Enable the Metrics server api
 ```
  kubectl apply -f ./metrics-api-server.yaml
 ```
