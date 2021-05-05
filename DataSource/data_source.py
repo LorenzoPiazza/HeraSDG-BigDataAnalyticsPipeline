@@ -15,6 +15,7 @@ import sys, getopt
 import pandas as pd
 import numpy  as np
 from kafka import KafkaProducer, BrokerConnection, KafkaAdminClient
+from kafka.partitioner import DefaultPartitioner
 from kafka.errors import KafkaError
 from json  import dumps
 from time  import sleep
@@ -151,6 +152,24 @@ to_generate = {
     "utenti" : generate_user_record
     }
 
+
+##################################### METADATA FUCTION #####################################
+import threading
+import pandas as pd
+
+def printMetadata(producer):
+  threading.Timer(30.0, printMetadata, (producer,)).start()
+  print("METRICS:")
+  metrics = producer.metrics()['producer-metrics']
+  d = pd.DataFrame(metrics, index = [0])
+  d.to_csv("./producer_metrics.csv", mode='a', header=False)
+  print(metrics)
+#   for key in metrics:
+#     # if(key == "request-latency-avg"):
+#         print(str(key) + ": " + str(metrics[key]) )
+
+
+##################################### MAIN FUNCTION #####################################
 if __name__ == "__main__":
    # Check the arguments passed to the CL (excluding the script name)
    if(len(sys.argv) - 1 != 2): 
@@ -162,13 +181,16 @@ if __name__ == "__main__":
         initial_size = int(sys.argv[2])
    
    # Create a producer and a connection to the Kafka Broker
+   partitioner = DefaultPartitioner()
    producer = KafkaProducer(bootstrap_servers=[kafka_server],
                             # linger_ms = 500,
                             # batch_size = 0,
                             retries = 3,
                             key_serializer=str.encode, 
                             value_serializer=lambda x: dumps(x).encode('utf-8'),
-                            metrics_num_samples=10000)
+                            # partitioner=partitioner,
+                            metrics_num_samples=2,
+                            metrics_sample_window_ms=30000)
    print()
    print("...Connecting to bootstrap_server on " + kafka_server)
    print()
@@ -179,49 +201,60 @@ if __name__ == "__main__":
         print()
         # ## SOME METADATA INSPECTION
 
-        # print("SENDING "+str(initial_size)+ " record WITHOUT PARALLELISM")
-        # for i in range(initial_size):
-        #     user = generate_user_record()
-        #     if(user["id_utente"] == ""):
-        #         producer.send("test", key="NULL RECORD", partition=1)  # Simulate a NULL value send
-        #     else:
-        #         producer.send("test", key=str(user["id_utente"]), value=user,  partition=1)
-        # print()
-        # print("METRICS:")
-        # metrics = producer.metrics()['producer-metrics']
-        # for key in metrics:
-        #     if(key == "request-latency-avg"):
-        #         print(str(metrics[key]))
-        ##### WARNING!!! All the record with the same key will be sent to the same topic partition!
-        ##### So even if you have multiple partions but only a single key, all the messages will end up in the same partition and processed by the same consumer, NOT EXPLOITING PARALLELISM !!
-          
-        ## SEND OPERATIONS
-        print("Generate and send a first set of " + str(initial_size) + " users and " + str(3*initial_size) + " behaviours...")
+        # START PRINTING METADATA  
+        # printMetadata(producer)
+        print("SENDING "+str(initial_size)+ " record WITHOUT PARALLELISM")
         for i in range(initial_size):
             user = generate_user_record()
             if(user["id_utente"] == ""):
-                producer.send("utenti", key="NULL RECORD")  # Simulate a NULL value send
+                producer.send("test", key=b"NULL RECORD")  # Simulate a NULL value send
+                print("NULL")
             else:
-                producer.send("utenti", key=str(user["id_utente"]), value=user)
+                future = producer.send("test", key=str(np.random.randint(10)), value=user)
+                try:
+                    returned = future.get(timeout=10)
+                except KafkaError:
+                    # Decide what to do if produce request failed...
+                    pass
+                print (returned.topic)
+                print (returned.partition)
+        # print("METRICS:")
+        # metrics = producer.metrics()['producer-metrics']
+        # for key in metrics:
+        #     # if(key == "request-latency-avg"):
+        #         print(str(key) + ": " + str(metrics[key]) ) 
 
-        for i in range(5*initial_size):
-            comportamento = generate_comportamento_record()
-            producer.send("comportamenti", key=str(comportamento["id_utente"]), value=comportamento)
+        ##### WARNING!!! All the record with the same key will be sent to the same topic partition!
+        ##### So even if you have multiple partions but only a single key, all the messages will end up in the same partition and processed by the same consumer, NOT EXPLOITING PARALLELISM !!
 
-        print()
-        print("Generate others data...")
-        p = (0.60, 0.25, 0.15)
-        options = ("comportamenti", "premi", "utenti")
-        while(True):
-        # for i in range(10):
-            choice = np.random.choice(options, p = p)
-            # Invoke the correct generator function according to the choice
-            data = to_generate[choice]()
-            if(data['id_utente'] == ""):
-                producer.send(choice, key="NULL RECORD")      # Simulate a NULL value send
-            else:
-                producer.send(choice, key=str(data["id_utente"]), value=data)
- 
+        # SEND OPERATIONS
+        # print("Generate and send a first set of " + str(initial_size) + " users and " + str(5*initial_size) + " behaviours...")
+        # for i in range(initial_size):
+        #     user = generate_user_record()
+        #     if(user["id_utente"] == ""):
+        #         producer.send("utenti", key="NULL RECORD")  # Simulate a NULL value send
+        #     else:
+        #         producer.send("utenti", key=str(user["id_utente"]), value=user)
+
+        # for i in range(5*initial_size):
+        #     comportamento = generate_comportamento_record()
+        #     producer.send("comportamenti", key=str(comportamento["id_utente"]), value=comportamento)
+
+        # print()
+        # print("Generate others data...")
+        # p = (0.60, 0.25, 0.15)
+        # options = ("comportamenti", "premi", "utenti")
+        # while(True):
+        # # for i in range(10):
+        #     choice = np.random.choice(options, p = p)
+        #     # Invoke the correct generator function according to the choice
+        #     data = to_generate[choice]()
+        #     if(data['id_utente'] == ""):
+        #         producer.send(choice, key="NULL RECORD")      # Simulate a NULL value send
+        #     else:
+        #         producer.send(choice, key=str(data["id_utente"]), value=data)
+
+
             # print()
             # print("NEW RECORD for: "+ choice)
             # print("================================================================================================================================")

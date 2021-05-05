@@ -752,7 +752,8 @@ extraDeploy:
                     "rotate.schedule.interval.ms"             : "600000",
                     "format.class"                            : "io.confluent.connect.hdfs3.json.JsonFormat",
                     "topics.dir"                              : "/HeraSDG/raw_data",
-                    "filename.offset.zero.pad.width"          : "6",
+                    "file.delim"                              : "_",
+                    "filename.offset.zero.pad.width"          : "10",
                     
                     "_comment": " --- Error Handling: dead letter queue  --- ",
                     "errors.tolerance": "all",

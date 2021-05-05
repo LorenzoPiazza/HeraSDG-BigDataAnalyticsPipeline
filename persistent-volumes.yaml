@@ -80,7 +80,6 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: my-local-storage
   local:
     path: /data/volumes/pv4
   nodeAffinity:
@@ -175,7 +174,6 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: my-local-storage
   local:
     path: /data/volumes/pv8
   nodeAffinity:
