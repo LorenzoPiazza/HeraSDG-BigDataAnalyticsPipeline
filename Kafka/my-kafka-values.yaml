@@ -604,6 +604,11 @@ extraDeploy:
             - name: connect
               image: confluentinc/cp-kafka-connect-base:6.1.0
               imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  memory: "256Mi"
+                limits:
+                  memory: "512Mi"
               command: ["/bin/sh", "-c"]
               args:
                 - confluent-hub install --no-prompt confluentinc/kafka-connect-hdfs3:1.1.1 && /opt/bitnami/kafka/scripts/launch-hdfs-sink-connector.sh;
@@ -748,8 +753,7 @@ extraDeploy:
                     "partition.duration.ms"                   : "600000",
                     "locale"                                  : "fr-FR",
                     "timezone"                                : "Europe/Paris",
-                    "flush.size"                              : "2000000",
-                    "rotate.schedule.interval.ms"             : "600000",
+                    "flush.size"                              : "500000",
                     "format.class"                            : "io.confluent.connect.hdfs3.json.JsonFormat",
                     "topics.dir"                              : "/HeraSDG/raw_data",
                     "file.delim"                              : "_",
