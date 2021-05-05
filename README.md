@@ -134,6 +134,10 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 - For driver-executor communication purpose you have also to create an *headless service* that refers the Frontend Pod where the Spark Driver execute:  
 `kubectl apply -f ./ML-Frontend/jupyter-headless-svc.yaml`
 
+- Running Spark on K8s in *client mode* means the Spark driver run inside the my-jupyter-jupyter-0 Pod (the executors). So you have to grant this Pod the privileges to create and delete Pod.  
+  my-jupyter-jupyter-0 is already associated to default:default service account. So, bind that service account to the clusterrole=edit:  
+ `kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:default --namespace=default`
+
 #### How to access the frontend:
 1. Get access token from jupyter server log:  
    `kubectl logs -f -n default svc/my-jupyter-jupyter`
@@ -146,6 +150,9 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 
 If you set up your own password, remember to restart jupyter server to update the configuration.
   File -> Shut Down
+
+4. Grant access to the Spark UI:
+   `kubectl port-forward -n default my-jupyter-jupyter-0 4040:4040`
 
 
 ### Delete/Uninstall a Helm release:
