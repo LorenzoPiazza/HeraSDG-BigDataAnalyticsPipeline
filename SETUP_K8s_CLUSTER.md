@@ -309,6 +309,12 @@ NOTE 2: each OS want its own specific sep between the paths. Please refer to you
  kubectl apply -f persistent-volumes.yaml
 ```
 
+- - - -
+### Enable Metrics-server-api
+```
+ kubectl apply -f ./metrics-api-server.yaml
+```
+
 <br> 
 
 ***
