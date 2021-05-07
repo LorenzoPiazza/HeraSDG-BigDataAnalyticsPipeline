@@ -590,6 +590,7 @@ extraDeploy:
                       operator: In
                       values:
                       - kafka
+                      - datanode
                   topologyKey: "kubernetes.io/hostname"
           # An initial container to install some useful packages:
           initContainers:
