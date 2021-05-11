@@ -18,7 +18,7 @@ You can either choose to set up a local environment with a single virtual node c
 - For the first option you can follow this guide: **[How to set up a minikube local cluster](https://minikube.sigs.k8s.io/docs/start/)**.  
     > *And then [install kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) to talk to the cluster.*  
 
-- Otherwise look at this guide: **[How set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
+- Otherwise look at this guide: **[How to set up a Kubernetes cluster](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md)**.  
     > *You will end up with a K8s on premise cluster and your laptop acting as an external workstation.*
 
 ### 2. Install Helm
