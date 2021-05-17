@@ -166,7 +166,7 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 If you set up your own password, remember to restart jupyter server to update the configuration.
   File -> Shut Down
 
-4. Grant access to the Spark UI:
+4. Grant access to the Spark UI:  
    `kubectl port-forward -n default my-jupyter-jupyter-0 4040:4040`
 
 
