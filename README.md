@@ -7,13 +7,13 @@
 - [HeraSDG-BigDataAnalyticsPipeline](#herasdg-bigdataanalyticspipeline)
     - [1. Setup the Kubernetes cluster](#1-setup-the-kubernetes-cluster)
     - [2. Install Helm](#2-install-helm)
-    - [3. Deploy HDFS on cluster (using Helm):](#3-deploy-hdfs-on-cluster-using-helm)
-    - [4. Deploy Kafka on cluster (using Helm):](#4-deploy-kafka-on-cluster-using-helm)
+    - [3. Deploy HDFS on cluster (using Helm)](#3-deploy-hdfs-on-cluster-using-helm)
+    - [4. Deploy Kafka on cluster (using Helm)](#4-deploy-kafka-on-cluster-using-helm)
       - [4.1 Kafka Connect: Confluent HDFS3 Sink Connector](#41-kafka-connect-confluent-hdfs3-sink-connector)
-    - [5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):](#5-deploy-the-ml-frontend-equipped-with-spark-component-on-cluster-using-helm)
-      - [How to access the frontend:](#how-to-access-the-frontend)
-    - [Delete/Uninstall a Helm release:](#deleteuninstall-a-helm-release)
-    - [Useful Commands:](#useful-commands)
+    - [5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm)](#5-deploy-the-ml-frontend-equipped-with-spark-component-on-cluster-using-helm)
+      - [How to access the frontend](#how-to-access-the-frontend)
+    - [Delete/Uninstall a Helm release](#deleteuninstall-a-helm-release)
+    - [Useful Commands](#useful-commands)
 
 ### 1. Setup the Kubernetes cluster
 Firstly you have to create a K8s cluster on which deploy the Big Data Analytics pipeline.  
@@ -40,7 +40,7 @@ Otherwise, if you have more than one K8s cluster installed, you should configure
 
 The initial setup ends here. You can **start to deploy the pipeline components!**    
 
-### 3. Deploy HDFS on cluster (using Helm):
+### 3. Deploy HDFS on cluster (using Helm)
 The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 datanodes.  
 The replica factor I set is 3, and the block-size is 128Mb.
 - Firstly, add the **gaffer/** Helm repository to your local repository list:  
@@ -78,7 +78,7 @@ You can use fsck (Filesystem check) to run a DFS filesystem checking utility on 
 If so, require the namenode to [recover the lease](https://blog.cloudera.com/understanding-hdfs-recovery-processes-part-1/) for that file:    
   `hdfs debug recoverLease -path /tmp/premi/0/log`
 
-### 4. Deploy Kafka on cluster (using Helm):  
+### 4. Deploy Kafka on cluster (using Helm)  
 - Firstly, add the **bitnami/** Helm repository to your local repository list:  
 `helm repo add bitnami https://charts.bitnami.com/bitnami`  
 - Then, deploy a [bitnami/kafka](https://artifacthub.io/packages/helm/bitnami/kafka) release on the cluster, providing the custom values in the file /Kafka/my-kakfa-values.yaml:  
@@ -133,7 +133,7 @@ To this goal you have to:
 3. Create an Horizontal Pod Autoscaler:  
     > `kubectl autoscale deployment my-kafka-connect --min=1 --max=3 --cpu-percent=80`  
 
-### 5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):
+### 5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm)
 In this section we deploy a **Jupyter release that is equipped with PySpark 3.1.1**. This release uses the [*jupyter/pyspark-notebook*](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-pyspark-notebook) image and will create a Stateful Set, of one Pod, that contains the frontend notebook.  
 This notebook is configured to [run Spark on Kubernetes](https://spark.apache.org/docs/latest/running-on-kubernetes.html) in *client mode*. It means that, when the user require the Spark Context creation, the desired # of executor are created (in Pods) and the Spark Driver is launched in the same Pod of the notebook.   
 The executor use the [*lorenzopiazza/hera_sdg:spark-py_3.1.1-python3.8*](https://hub.docker.com/layers/lorenzopiazza/hera_sdg/spark-py_3.1.1-python3.8/images/sha256-8f2643f9c565a64c8ffbe38b798d5ce1b8b9be2fa414a8a0081f5d39974bb481?context=repo) image, a custom image that I create from the Pyspark 3.1.1 image and make available on my Docker Hub.
@@ -153,7 +153,7 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
   my-jupyter-jupyter-0 is already associated to default:default service account. So, bind that service account to the clusterrole=edit:  
  `kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:default --namespace=default`
 
-#### How to access the frontend:
+#### How to access the frontend
 1. Get access token from jupyter server log:  
    `kubectl logs -f -n default svc/my-jupyter-jupyter`
 
@@ -171,14 +171,14 @@ If you set up your own password, remember to restart jupyter server to update th
    `kubectl port-forward -n default my-jupyter-jupyter-0 4040:4040`
 
 
-### Delete/Uninstall a Helm release:
+### Delete/Uninstall a Helm release
 You can see all the release deployed with the command:  
 `helm list`  
 Then you can choose to uninstall one of them with the command:  
 `helm delete <release-name>`  
 The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
 
-### Useful Commands:
+### Useful Commands
 - Get Kubernetes available objects  
   `kubectl get <nodes/pods/svc/sts/deployment/cm/pv/pvc>`
 - Describe a specific pod  
