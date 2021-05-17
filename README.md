@@ -108,7 +108,7 @@ For example, to inspect the metadata returned to the client:
 `kafkacat -b <bootstrap-server:port> -t <topic> -L`
 
 #### 4.1 Kafka Connect: [Confluent HDFS3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-hdfs3)  
-*...NOTA: sembra che vi sia una licenza d'uso di 30d. HDFS2 Sink Connector invece dovrebbe essere free...*  
+*NOTE: The Confluent HDFS3 Sink Connector plugin has a [commercial license](https://www.confluent.io/hub/confluentinc/kafka-connect-hdfs3) with a 30d free-use.*  
 
 In *my-kafka-values.yaml* file, there is an array field called *extraDeploys*. It defines some extra K8s resources that are deployed with Kafka release when you execute the command `helm install` of the previuos section.  
 In particular it deploys:  
@@ -166,7 +166,8 @@ Using the *gitNotebooks* value, you can custom the release with an init Containe
 If you set up your own password, remember to restart jupyter server to update the configuration.
   File -> Shut Down
 
-4. Grant access to the Spark UI:  
+4. Upload the `./ML-Frontend/notebooks/HeraSDG.ipynb` file.  
+5. Grant access to the Spark UI:  
    `kubectl port-forward -n default my-jupyter-jupyter-0 4040:4040`
 
 
