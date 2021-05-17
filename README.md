@@ -1,6 +1,8 @@
 # HeraSDG-BigDataAnalyticsPipeline
 > This repository contains my thesis project for the Master Degree in Computer Engineering.  
-> Here it is the documentation to reproduce the project. Have fun!
+> Here it is the documentation to reproduce the project. Have fun!  
+> **Description:**  
+> The project consist in a Big Data Analytics Pipeline that could be use to collect, store and analyze all the data produced by *Hera Smart Community*.   
 
 - [HeraSDG-BigDataAnalyticsPipeline](#herasdg-bigdataanalyticspipeline)
     - [1. Setup the Kubernetes cluster](#1-setup-the-kubernetes-cluster)
@@ -11,6 +13,7 @@
     - [5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):](#5-deploy-the-ml-frontend-equipped-with-spark-component-on-cluster-using-helm)
       - [How to access the frontend:](#how-to-access-the-frontend)
     - [Delete/Uninstall a Helm release:](#deleteuninstall-a-helm-release)
+    - [Useful Commands:](#useful-commands)
 
 ### 1. Setup the Kubernetes cluster
 Firstly you have to create a K8s cluster on which deploy the Big Data Analytics pipeline.  
@@ -25,9 +28,12 @@ You can either choose to set up a local environment with a single virtual node c
 Now you have to install Helm, a package manager for K8s. It helps to deploy software on K8s.  
 > You can follow this [installation guide](https://helm.sh/docs/intro/install/).  
 
-Then, you have to configure kubectl to talk to the right cluster. Helm, infact, will refer to the current kubectl context.  
-**Note:** If you installed minikube and you have only that cluster, kubectl is already configured.  
-Otherwise, if you have more than one K8s cluster, you should configure kubectl to talk to the right cluster.
+Then, you have to configure kubectl to talk to the right cluster. Helm, infact, will refer to the current kubectl context settings.  
+
+
+**Note:**  
+If you installed minikube and you have only that cluster, kubectl is already configured.  
+Otherwise, if you have more than one K8s cluster installed, you should configure kubectl to talk to the right cluster:
 > If you haven't already, follow step 4, 5, 6, 7 of [Configure your laptop to act as an external cluster workstation](https://github.com/LorenzoPiazza/HeraSDG-BigDataAnalyticsPipeline/blob/master/SETUP_K8s_CLUSTER.md#optional-configure-your-laptop-to-act-as-an-external-cluster-workstation)
 
 <br> 
@@ -39,8 +45,8 @@ The helm chart that I used deploys an HDFS 3.2.1 cluster with a namenode and 3 d
 The replica factor I set is 3, and the block-size is 128Mb.
 - Firstly, add the **gaffer/** Helm repository to your local repository list:  
 `helm repo add gaffer https://gchq.github.io/gaffer-docker`  
-- Then, deploy a [gaffer/hdfs](https://artifacthub.io/packages/helm/gaffer/hdfs) release on the cluster, providing the custom value in the file my-kakfa-values.yaml:  
-`helm install -f my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
+- Then, deploy a [gaffer/hdfs](https://artifacthub.io/packages/helm/gaffer/hdfs) release on the cluster, providing the custom value in the file /HDFS/my-hdfs-values.yaml:  
+`helm install -f ./HDFS/my-hdfs-values.yaml my-hdfs gaffer/hdfs --version 0.10.0`
 - If you want, you can create a port-forward to access the hdfs manager UI:  
  `kubectl port-forward -n default svc/my-hdfs-namenodes 9870:9870`
 
@@ -64,8 +70,8 @@ Caused by: org.apache.hadoop.hdfs.CannotObtainBlockLengthException: Cannot obtai
  
 It happens because there is a file still in written state, not closed correctly because the previous connectors has stopped.
  
-You can solve as follows:  
-You can use fsck (Filesystem check to run a DFS filesystem checking utility) on a particular directory to check if there are some openwrite file:  
+*You can solve as follows:*  
+You can use fsck (Filesystem check) to run a DFS filesystem checking utility on a particular directory in order to check if there are some openwrite file:  
   `hdfs fsck /`
   or
   `hdfs fsck / -openforwrite`    
@@ -76,7 +82,7 @@ If so, require the namenode to [recover the lease](https://blog.cloudera.com/und
 - Firstly, add the **bitnami/** Helm repository to your local repository list:  
 `helm repo add bitnami https://charts.bitnami.com/bitnami`  
 - Then, deploy a [bitnami/kafka](https://artifacthub.io/packages/helm/bitnami/kafka) release on the cluster, providing the custom values in the file /Kafka/my-kakfa-values.yaml:  
-`helm install -f /Kafka/my-kafka-values.yaml my-kafka bitnami/kafka`
+`helm install -f ./Kafka/my-kafka-values.yaml my-kafka bitnami/kafka`
 
     #### Setup the connection between the data_source (external to the cluster) and Kafka (internal to the cluster):
     Kafka is reachable using a K8s NodePort Service that expose the port 30001 on all the node of the cluster.  
@@ -118,10 +124,19 @@ Some example that you can execute inside the Connector container are:
 - Restart the task with id 0 of the hdfs3-sink connector (there is no output if the command is successful):  
 `curl -X POST localhost:8083/connectors/hdfs3-sink/tasks/0/restart`
 
+**Enable Horizontal Scaling**  
+It is possible to monitor the resource usage of the Connector Deployment and command an appropriate automatic scale up-down.  
+To this goal you have to:  
+1. Enable the Metrics API Server:
+    > In Minikube set-up: `minikube addons enable metrics-server`  
+    > In real cluster set-up: `kubectl apply -f ./metrics-api-server.yaml`  
+3. Create an Horizontal Pod Autoscaler:  
+    > `kubectl autoscale deployment my-kafka-connect --min=1 --max=3 --cpu-percent=80`  
+
 ### 5. Deploy the ML-Frontend equipped with Spark component on cluster (using Helm):
 In this section we deploy a **Jupyter release that is equipped with PySpark 3.1.1**. This release uses the [*jupyter/pyspark-notebook*](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-pyspark-notebook) image and will create a Stateful Set, of one Pod, that contains the frontend notebook.  
 This notebook is configured to [run Spark on Kubernetes](https://spark.apache.org/docs/latest/running-on-kubernetes.html) in *client mode*. It means that, when the user require the Spark Context creation, the desired # of executor are created (in Pods) and the Spark Driver is launched in the same Pod of the notebook.   
-The executor use the [*lorenzopiazza/hera_sdg:spark-py_3.1.1-python3.8*](https://hub.docker.com/layers/lorenzopiazza/hera_sdg/spark-py_3.1.1-python3.8/images/sha256-8f2643f9c565a64c8ffbe38b798d5ce1b8b9be2fa414a8a0081f5d39974bb481?context=repo) image, a custom image that I create from the Pyspark 3.1.1 image and make available on my docker hub.
+The executor use the [*lorenzopiazza/hera_sdg:spark-py_3.1.1-python3.8*](https://hub.docker.com/layers/lorenzopiazza/hera_sdg/spark-py_3.1.1-python3.8/images/sha256-8f2643f9c565a64c8ffbe38b798d5ce1b8b9be2fa414a8a0081f5d39974bb481?context=repo) image, a custom image that I create from the Pyspark 3.1.1 image and make available on my Docker Hub.
 
 
 - Firstly, add the **gradiant/** Helm repository to your local repository list:  
@@ -161,6 +176,21 @@ You can see all the release deployed with the command:
 Then you can choose to uninstall one of them with the command:  
 `helm delete <release-name>`  
 The command removes all the Kubernetes components associated with the chart and deletes the release, but doesn't delete the PVs and PVCs.
+
+### Useful Commands:
+- Get Kubernetes available objects  
+  `kubectl get <nodes/pods/svc/sts/deployment/cm/pv/pvc>`
+- Describe a specific pod  
+  `kubectl describe pod <pod-name>`
+- Consult a Pod logs  
+  `kubectl logs <pod-name>`
+- Run a command inside a Pod  
+  `kubectl exec --stdin --tty <pod-name> -- /bin/bash`
+- Delete all Pods with a specific label  
+  `kubectl delete pods -l spark-role=executor`
+- Monitor resource usage  
+  `kubectl top <nodes/pods>`
+
 
 
 <br> 
